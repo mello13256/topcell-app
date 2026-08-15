@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Top Cell — Celulares e Serviços</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#050B1A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Top Cell">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow: #FFC800;
+    --yellow-deep: #F5B800;
+    --navy: #050B1A;
+    --navy-2: #0A1428;
+    --blue: #1E6FEA;
+    --blue-bright: #3AA6FF;
+    --blue-glow: #4FC3FF;
+    --ink: #0B0F1A;
+    --white: #F4F8FF;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background: var(--yellow);
+    font-family:'Rajdhani', sans-serif;
+    color: var(--white);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  body{
+    display:flex;
+    justify-content:center;
+    min-height:100vh;
+  }
+  .app{
+    width:100%;
+    max-width:420px;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 8% 6%, rgba(79,195,255,0.10), transparent 40%),
+      linear-gradient(180deg, var(--yellow) 0%, var(--yellow) 100%);
+    position:relative;
+    overflow-x:hidden;
+    padding-bottom:100px;
+  }
+
+  /* ===== HEADER ===== */
+  .hero{
+    position:relative;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(30,111,234,0.35), transparent 60%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 75%, var(--yellow) 100%);
+    padding: 18px 20px 34px;
+    overflow:hidden;
+  }
+  .hero::before, .hero::after{
+    content:"";
+    position:absolute;
+    width:2px; height:170px;
+    background: linear-gradient(180deg, transparent, var(--yellow), transparent);
+    opacity:0.65;
+    transform: rotate(28deg);
+  }
+  .hero::before{ left:-10px; top:60px; }
+  .hero::after{ right:0px; top:30px; transform: rotate(28deg); }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; z-index:2;
+  }
+  .icon-btn{
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(10,20,40,0.4);
+    border: 1.5px solid rgba(79,195,255,0.6);
+    box-shadow: 0 0 12px rgba(58,166,255,0.45);
+    color: var(--blue-glow);
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  .icon-btn:active{ transform: scale(0.92); }
+  .icon-btn.wa{ color:#3AA6FF; box-shadow: 0 0 16px rgba(58,166,255,0.6); }
+  .icon-btn svg{ width:20px; height:20px; }
+
+  .brand{
+    text-align:center;
+    margin: 10px 0 4px;
+    position:relative; z-index:2;
+  }
+  .brand-mark{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    font-family:'Orbitron', sans-serif;
+    line-height:0.85;
+  }
+  .brand-icon{
+    width:44px; height:60px;
+    margin-right:2px;
+    filter: drop-shadow(0 0 8px rgba(255,200,0,0.7));
+  }
+  .brand-text{ text-align:left; }
+  .brand-top{
+    font-size:2.6rem;
+    font-weight:900;
+    color: var(--navy);
+    -webkit-text-stroke: 1.5px var(--yellow);
+    text-shadow:
+      0 0 6px var(--yellow),
+      0 0 16px rgba(255,200,0,0.6),
+      0 0 30px rgba(255,200,0,0.35);
+    display:block;
+    letter-spacing:1px;
+  }
+  .brand-bottom{
+    font-size:2.6rem;
+    font-weight:900;
+    color: var(--navy);
+    -webkit-text-stroke: 1.5px var(--blue-bright);
+    text-shadow:
+      0 0 6px var(--blue-bright),
+      0 0 16px rgba(58,166,255,0.6),
+      0 0 30px rgba(58,166,255,0.35);
+    display:block;
+    letter-spacing:1px;
+    margin-top:-10px;
+  }
+  .tagline{
+    text-align:center;
+    color: var(--blue-glow);
+    font-weight:700;
+    letter-spacing:3px;
+    font-size:0.78rem;
+    margin-top:2px;
+    text-shadow: 0 0 10px rgba(79,195,255,0.6);
+    position:relative; z-index:2;
+  }
+
+  /* ===== SEARCH ===== */
+  .search-wrap{
+    margin: 20px 20px 0;
+    position:relative;
+    z-index:3;
+  }
+  .search-bar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background: var(--yellow);
+    border: 2px solid var(--navy);
+    border-radius: 999px;
+    padding: 13px 20px;
+    box-shadow: 0 0 0 2px rgba(79,195,255,0.4), 0 6px 18px rgba(0,0,0,0.25);
+  }
+  .search-bar svg{ width:20px; height:20px; color: var(--navy); flex-shrink:0; }
+  .search-bar input{
+    border:none; background:transparent; outline:none;
+    font-family:'Rajdhani', sans-serif;
+    font-size:1.05rem;
+    font-weight:600;
+    color: var(--navy);
+    width:100%;
+  }
+  .search-bar input::placeholder{ color: rgba(11,15,26,0.65); }
+
+  /* ===== CATEGORIES ===== */
+  .categories{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:12px;
+    padding: 18px 20px 0;
+  }
+  .cat-btn{
+    background: var(--navy);
+    border: 1.5px solid var(--blue-bright);
+    border-radius: 14px;
+    padding: 14px 6px 10px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    box-shadow: 0 0 14px rgba(58,166,255,0.35), inset 0 0 10px rgba(58,166,255,0.05);
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+  }
+  .cat-btn:active{ transform: scale(0.94); }
+  .cat-btn.active{
+    background: #08132a;
+    box-shadow: 0 0 20px rgba(255,200,0,0.5), inset 0 0 10px rgba(255,200,0,0.1);
+    border-color: var(--yellow);
+  }
+  .cat-btn.active svg{ color: var(--yellow); filter: drop-shadow(0 0 6px rgba(255,200,0,0.8)); }
+  .cat-btn.active .cat-label{ color: var(--yellow); }
+  .cat-btn svg{
+    width:26px; height:26px;
+    color: var(--yellow);
+    filter: drop-shadow(0 0 5px rgba(255,200,0,0.6));
+  }
+  .cat-label{
+    font-size:0.68rem;
+    font-weight:700;
+    letter-spacing:0.5px;
+    color: var(--blue-glow);
+    text-align:center;
+  }
+
+  /* ===== PROMO CAROUSEL ===== */
+  .promo-wrap{
+    margin: 22px 20px 0;
+    position:relative;
+  }
+  .promo-track{
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    border-radius:20px;
+    scrollbar-width:none;
+  }
+  .promo-track::-webkit-scrollbar{ display:none; }
+  .promo-slide{
+    scroll-snap-align:start;
+    flex:0 0 100%;
+    min-height:230px;
+    border-radius:20px;
+    background: linear-gradient(120deg, #061024 0%, #0A1E42 55%, #0d2a5c 100%);
+    border:1px solid rgba(58,166,255,0.35);
+    position:relative;
+    overflow:hidden;
+    padding: 24px 22px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .promo-slide .glow-orb{
+    position:absolute; right:-40px; bottom:-40px;
+    width:180px; height:180px; border-radius:50%;
+    background: radial-gradient(circle, rgba(58,166,255,0.35), transparent 70%);
+  }
+  .promo-eyebrow{ font-size:1.5rem; font-weight:800; font-family:'Orbitron',sans-serif; color:var(--blue-glow); text-shadow:0 0 12px rgba(58,166,255,0.6); line-height:1.15;}
+  .promo-headline{ font-size:1.5rem; font-weight:800; font-family:'Orbitron',sans-serif; color:var(--yellow); text-shadow:0 0 12px rgba(255,200,0,0.6); line-height:1.15; margin-bottom:10px;}
+  .promo-sub{ font-size:0.95rem; color:#dce7ff; font-weight:500; margin-bottom:16px; max-width:70%;}
+  .promo-cta{
+    align-self:flex-start;
+    background:transparent;
+    border:1.5px solid var(--blue-bright);
+    color:var(--blue-glow);
+    font-family:'Rajdhani',sans-serif;
+    font-weight:700;
+    letter-spacing:1px;
+    font-size:0.8rem;
+    padding:10px 18px;
+    border-radius:999px;
+    box-shadow: 0 0 14px rgba(58,166,255,0.4);
+    cursor:pointer;
+  }
+  .promo-emoji{
+    position:absolute; right:16px; top:50%; transform:translateY(-50%);
+    font-size:5.5rem;
+    filter: drop-shadow(0 0 18px rgba(58,166,255,0.5));
+  }
+  .dots{
+    display:flex; justify-content:center; gap:7px; margin-top:10px;
+  }
+  .dot{ width:7px; height:7px; border-radius:50%; background: rgba(30,50,90,0.4); transition:.2s;}
+  .dot.active{ background: var(--yellow); box-shadow:0 0 8px var(--yellow); width:20px; border-radius:5px;}
+
+  /* ===== SECTION HEADER ===== */
+  .section-head{
+    display:flex; align-items:center; gap:10px;
+    margin: 28px 20px 14px;
+  }
+  .section-head svg{ width:20px; height:20px; color:var(--navy); flex-shrink:0; }
+  .section-head h2{
+    font-family:'Orbitron', sans-serif;
+    font-size:1.05rem;
+    color: var(--navy);
+    letter-spacing:0.5px;
+  }
+  .section-head .line{
+    flex:1; height:2px;
+    background: linear-gradient(90deg, rgba(11,15,26,0.35), transparent);
+  }
+  .see-all{
+    display:flex; align-items:center; gap:3px;
+    color: var(--navy);
+    font-weight:700;
+    font-size:0.85rem;
+    text-decoration:none;
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .see-all svg{ width:15px; height:15px; }
+
+  /* ===== PRODUCTS ===== */
+  .products{
+    display:flex;
+    gap:14px;
+    overflow-x:auto;
+    padding: 0 20px 4px;
+    scrollbar-width:none;
+  }
+  .products::-webkit-scrollbar{ display:none; }
+  .card{
+    flex:0 0 165px;
+    background: linear-gradient(160deg, #081328 0%, #050b1a 100%);
+    border:1px solid rgba(58,166,255,0.3);
+    border-radius:16px;
+    padding:12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    position:relative;
+    display:none;
+  }
+  .card.show{ display:block; }
+  .badge{
+    position:absolute; top:10px; left:10px;
+    font-size:0.62rem; font-weight:800; letter-spacing:0.5px;
+    padding:4px 9px; border-radius:999px;
+    background: var(--blue); color:#fff; z-index:2;
+    box-shadow:0 0 10px rgba(30,111,234,0.7);
+  }
+  .badge.promo{ background:#0d6efd; }
+  .card-img{
+    width:100%; height:120px;
+    border-radius:10px;
+    background: radial-gradient(circle at 50% 40%, #1a2c4d, #060c1a 75%);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:10px;
+    font-size:2.6rem;
+    overflow:hidden;
+  }
+  .card-img img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .card-img.out-of-stock img{ filter: grayscale(1) brightness(0.5); }
+  .out-tag{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.45);
+    color:#fff; font-weight:800; font-size:0.78rem; letter-spacing:0.5px;
+    border-radius:10px;
+  }
+  .card.out-of-stock .details-btn{ opacity:0.4; pointer-events:none; }
+
+  .loading-msg, .error-msg{
+    display:none;
+    text-align:center;
+    color: rgba(11,15,26,0.65);
+    font-weight:600;
+    padding: 30px 20px;
+    width:100%;
+  }
+  .loading-msg.show, .error-msg.show{ display:block; }
+  .card h3{ font-size:0.95rem; color:#fff; font-weight:700; }
+  .card .variant{ font-size:0.78rem; color:#8fa3c9; font-weight:600; margin-bottom:6px;}
+  .card .price{
+    color: var(--blue-glow);
+    font-weight:800;
+    font-size:1.05rem;
+    font-family:'Orbitron', sans-serif;
+    text-shadow:0 0 8px rgba(58,166,255,0.5);
+    margin-bottom:10px;
+  }
+  .card .details-btn{
+    width:100%;
+    background:transparent;
+    border:1.5px solid var(--blue-bright);
+    color: var(--blue-glow);
+    font-family:'Rajdhani', sans-serif;
+    font-weight:700;
+    font-size:0.75rem;
+    letter-spacing:0.5px;
+    padding:8px 0;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow: 0 0 10px rgba(58,166,255,0.3);
+    transition: background .15s ease;
+  }
+  .card .details-btn:active{ background: rgba(58,166,255,0.15); }
+
+  .empty-msg{
+    display:none;
+    text-align:center;
+    color: rgba(11,15,26,0.6);
+    font-weight:600;
+    padding: 30px 20px;
+  }
+  .empty-msg.show{ display:block; }
+
+  /* ===== FLOATING WHATSAPP CTA ===== */
+  .wa-cta{
+    position: fixed;
+    bottom:16px; left:50%;
+    transform: translateX(-50%);
+    width:100%; max-width:380px;
+    background: linear-gradient(120deg, #061024, #0A1E42);
+    border:1.5px solid var(--blue-bright);
+    border-radius:16px;
+    padding:12px 16px;
+    display:flex; align-items:center; gap:12px;
+    text-decoration:none;
+    box-shadow: 0 0 24px rgba(58,166,255,0.5), 0 8px 24px rgba(0,0,0,0.4);
+    z-index:20;
+    cursor:pointer;
+  }
+  .wa-cta .wa-icon{
+    width:38px; height:38px; border-radius:50%;
+    background: rgba(58,166,255,0.15);
+    border:1.5px solid var(--blue-bright);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    color: var(--blue-glow);
+  }
+  .wa-cta .wa-icon svg{ width:20px; height:20px; }
+  .wa-cta .wa-text{ flex:1; }
+  .wa-cta .wa-text strong{
+    display:block; color:var(--blue-glow); font-family:'Orbitron',sans-serif;
+    font-size:0.85rem; letter-spacing:0.3px; text-shadow:0 0 8px rgba(58,166,255,0.5);
+  }
+  .wa-cta .wa-text span{ display:block; color:#a9bde0; font-size:0.68rem; font-weight:600; margin-top:2px;}
+  .wa-cta .chev{ width:16px; height:16px; color:var(--blue-glow); flex-shrink:0;}
+
+  /* ===== SIDE MENU ===== */
+  .overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:30;
+  }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+  .side-menu{
+    position:fixed; top:0; left:0; bottom:0; width:78%; max-width:300px;
+    background: var(--navy);
+    border-right:1.5px solid var(--blue-bright);
+    box-shadow: 0 0 40px rgba(0,0,0,0.6);
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    z-index:31;
+    padding: 24px 20px;
+  }
+  .side-menu.open{ transform: translateX(0); }
+  .side-menu h3{
+    font-family:'Orbitron', sans-serif; color:var(--yellow);
+    font-size:1.1rem; margin-bottom:20px; text-shadow:0 0 10px rgba(255,200,0,0.5);
+  }
+  .side-menu a{
+    display:flex; align-items:center; gap:12px;
+    color:#dce7ff; text-decoration:none; font-weight:600; font-size:0.98rem;
+    padding: 13px 4px; border-bottom:1px solid rgba(58,166,255,0.15);
+  }
+  .side-menu a svg{ width:18px; height:18px; color:var(--blue-glow); }
+  .close-menu{
+    position:absolute; top:20px; right:18px;
+    color:#8fa3c9; background:none; border:none; font-size:1.4rem; cursor:pointer;
+  }
+
+  @media (max-width:360px){
+    .brand-top, .brand-bottom{ font-size:2.2rem; }
+    .card{ flex-basis:150px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- HERO / HEADER -->
+  <div class="hero">
+    <div class="topbar">
+      <div class="icon-btn" id="menuBtn" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </div>
+      <div class="icon-btn wa" id="topWaBtn" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.02c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.17-4.94-4.37-.14-.2-1.19-1.58-1.19-3.01 0-1.43.75-2.13 1.02-2.42.27-.3.6-.37.79-.37.2 0 .4 0 .57.01.18.01.43-.07.68.52.24.6.83 2.05.9 2.2.07.15.12.32.02.52-.1.2-.15.32-.3.5-.14.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.3.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.35 1.44.3.15.47.13.65-.07.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.01.96.29.15.49.22.56.35.07.13.07.75-.17 1.43z"/></svg>
+      </div>
+    </div>
+
+    <div class="brand">
+      <div class="brand-mark">
+        <svg class="brand-icon" viewBox="0 0 44 60" fill="none">
+          <rect x="4" y="2" width="36" height="56" rx="7" stroke="url(#g1)" stroke-width="3"/>
+          <line x1="16" y1="49" x2="28" y2="49" stroke="url(#g1)" stroke-width="3" stroke-linecap="round"/>
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="60"><stop offset="0" stop-color="#FFC800"/><stop offset="1" stop-color="#3AA6FF"/></linearGradient></defs>
+        </svg>
+        <div class="brand-text">
+          <span class="brand-top">TOP</span>
+          <span class="brand-bottom">CELL</span>
+        </div>
+      </div>
+      <div class="tagline">CELULARES E SERVIÇOS</div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="O que você procura?">
+      </div>
+    </div>
+
+    <div class="categories">
+      <div class="cat-btn active" data-cat="celulares">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+        <span class="cat-label">CELULARES</span>
+      </div>
+      <div class="cat-btn" data-cat="servicos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+        <span class="cat-label">SERVIÇOS</span>
+      </div>
+      <div class="cat-btn" data-cat="acessorios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="2" y="14" width="4" height="6" rx="1.5"/><rect x="18" y="14" width="4" height="6" rx="1.5"/></svg>
+        <span class="cat-label">ACESSÓRIOS</span>
+      </div>
+      <div class="cat-btn" data-cat="outros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span class="cat-label">OUTROS</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMO CAROUSEL -->
+  <div class="promo-wrap">
+    <div class="promo-track" id="promoTrack">
+      <div class="promo-slide">
+        <div class="glow-orb"></div>
+        <div class="promo-eyebrow">TECNOLOGIA</div>
+        <div class="promo-headline">QUE CONECTA</div>
+        <div class="promo-sub">Produtos e serviços com qualidade!</div>
+        <button class="promo-cta">VER OFERTAS</button>
+        <div class="promo-emoji">📱</div>
+      </div>
+      <div class="promo-slide">
+        <div class="glow-orb"></div>
+        <div class="promo-eyebrow">ASSISTÊNCIA</div>
+        <div class="promo-headline">RÁPIDA E SEGURA</div>
+        <div class="promo-sub">Conserto de tela, bateria e muito mais.</div>
+        <button class="promo-cta">FALAR AGORA</button>
+        <div class="promo-emoji">🔧</div>
+      </div>
+      <div class="promo-slide">
+        <div class="glow-orb"></div>
+        <div class="promo-eyebrow">TROCA COM</div>
+        <div class="promo-headline">DESCONTO</div>
+        <div class="promo-sub">Dê seu aparelho usado na troca.</div>
+        <button class="promo-cta">SAIBA MAIS</button>
+        <div class="promo-emoji">🔁</div>
+      </div>
+    </div>
+    <div class="dots" id="dots">
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+  </div>
+
+  <!-- DESTAQUES -->
+  <div class="section-head">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7-5.4-4.6 7.1-.6z"/></svg>
+    <h2>DESTAQUES</h2>
+    <div class="line"></div>
+    <a class="see-all" id="seeAll">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg></a>
+  </div>
+
+  <div class="products" id="products">
+    <div class="loading-msg" id="loadingMsg">Carregando produtos...</div>
+  </div>
+  <div class="empty-msg" id="emptyMsg">Nenhum produto encontrado.</div>
+  <div class="error-msg" id="errorMsg">Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.</div>
+
+  <!-- WHATSAPP CTA -->
+  <a href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Vim%20pelo%20app%20da%20Top%20Cell%20e%20quero%20saber%20mais." class="wa-cta" target="_blank" rel="noopener">
+    <div class="wa-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.02c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.17-4.94-4.37-.14-.2-1.19-1.58-1.19-3.01 0-1.43.75-2.13 1.02-2.42.27-.3.6-.37.79-.37.2 0 .4 0 .57.01.18.01.43-.07.68.52.24.6.83 2.05.9 2.2.07.15.12.32.02.52-.1.2-.15.32-.3.5-.14.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.3.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.35 1.44.3.15.47.13.65-.07.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.01.96.29.15.49.22.56.35.07.13.07.75-.17 1.43z"/></svg>
+    </div>
+    <div class="wa-text">
+      <strong>FALAR COM A LOJA</strong>
+      <span>TIRE SUAS DÚVIDAS OU FAÇA SEU PEDIDO</span>
+    </div>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
+  </a>
+
+  <!-- SIDE MENU -->
+  <div class="overlay" id="overlay"></div>
+  <div class="side-menu" id="sideMenu">
+    <button class="close-menu" id="closeMenu">✕</button>
+    <h3>TOP CELL</h3>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Início</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/></svg> Celulares</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4z"/></svg> Serviços</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/></svg> Acessórios</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Sobre a loja</a>
+    <a href="https://wa.me/5500000000000" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Falar no WhatsApp</a>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+  // ================================================================
+  // CONFIGURAÇÃO — só mexer aqui
+  // ================================================================
+  // 1) WhatsApp da loja (código do país + DDD + número, sem espaços/símbolos)
+  const WHATSAPP_NUMBER = "5500000000000";
+
+  // 2) Link da planilha Google publicada como CSV
+  //    (Arquivo → Compartilhar → Publicar na Web → escolher a aba → formato CSV)
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1vr2elMXzFLIAnlwQHf24d6lv9dY1vWhSYK7ffxPv5aw/export?format=csv&gid=0";
+  // ⚠️ Isso só funciona se a planilha estiver compartilhada como
+  // "Qualquer pessoa com o link" → "Leitor". Se sua planilha tiver
+  // mais de uma aba, troque o "gid=0" pelo gid da aba certa
+  // (aparece na URL da planilha quando você clica na aba desejada).
+
+  // Ícone de fallback por categoria, caso o produto não tenha foto_url
+  const FALLBACK_ICON = {
+    celulares: "📱", servicos: "🛠️", acessorios: "🎧", outros: "🛡️"
+  };
+  // ================================================================
+
+  let allProducts = [];
+
+  // Side menu
+  const menuBtn = document.getElementById('menuBtn');
+  const closeMenu = document.getElementById('closeMenu');
+  const sideMenu = document.getElementById('sideMenu');
+  const overlay = document.getElementById('overlay');
+  function openMenu(){ sideMenu.classList.add('open'); overlay.classList.add('open'); }
+  function hideMenu(){ sideMenu.classList.remove('open'); overlay.classList.remove('open'); }
+  menuBtn.addEventListener('click', openMenu);
+  closeMenu.addEventListener('click', hideMenu);
+  overlay.addEventListener('click', hideMenu);
+
+  // Top whatsapp icon
+  document.getElementById('topWaBtn').addEventListener('click', () => {
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+  });
+
+  // Carousel dots sync
+  const track = document.getElementById('promoTrack');
+  const dots = document.querySelectorAll('#dots .dot');
+  track.addEventListener('scroll', () => {
+    const idx = Math.round(track.scrollLeft / track.clientWidth);
+    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
+  });
+  // autoplay
+  let autoIdx = 0;
+  setInterval(() => {
+    autoIdx = (autoIdx + 1) % dots.length;
+    track.scrollTo({ left: autoIdx * track.clientWidth, behavior: 'smooth' });
+  }, 5000);
+
+  // Category filter + render dinâmico
+  const catBtns = document.querySelectorAll('.cat-btn');
+  const productsWrap = document.getElementById('products');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const loadingMsg = document.getElementById('loadingMsg');
+  const errorMsg = document.getElementById('errorMsg');
+  const searchInput = document.getElementById('searchInput');
+  let activeCat = 'celulares';
+
+  function badgeInfo(row){
+    const est = (row.estoque || '').trim().toLowerCase();
+    const inStock = !(est === 'não' || est === 'nao' || est === '0' || est === 'false');
+    let label = (row.badge || '').trim();
+    let cls = '';
+    if (label.toLowerCase() === 'promoção' || label.toLowerCase() === 'promocao') cls = 'promo';
+    if (!inStock) label = 'ESGOTADO';
+    return { label, cls, inStock };
+  }
+
+  function renderCard(row){
+    const cat = (row.categoria || '').trim().toLowerCase();
+    const name = (row.nome || '').trim();
+    const { label, cls, inStock } = badgeInfo(row);
+    const icon = FALLBACK_ICON[cat] || '📦';
+    const fotoUrl = (row.foto_url || '').trim();
+
+    const card = document.createElement('div');
+    card.className = 'card show' + (inStock ? '' : ' out-of-stock');
+    card.dataset.cat = cat;
+    card.dataset.name = name.toLowerCase();
+
+    card.innerHTML = `
+      ${label ? `<span class="badge ${cls}">${label}</span>` : ''}
+      <div class="card-img ${inStock ? '' : 'out-of-stock'}">
+        ${fotoUrl ? `<img src="${fotoUrl}" alt="${name}" loading="lazy">` : icon}
+      </div>
+      <h3>${name}</h3>
+      <div class="variant">${row.variante || ''}</div>
+      <div class="price">R$ ${row.preco || ''}</div>
+      <button class="details-btn">${inStock ? 'VER DETALHES' : 'INDISPONÍVEL'}</button>
+    `;
+
+    const imgEl = card.querySelector('.card-img img');
+    if (imgEl){
+      imgEl.addEventListener('error', () => {
+        card.querySelector('.card-img').innerHTML = icon;
+      });
+    }
+
+    card.querySelector('.details-btn').addEventListener('click', () => {
+      if (!inStock) return;
+      const msg = encodeURIComponent(`Olá! Tenho interesse no produto: ${name}`);
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+    });
+
+    return card;
+  }
+
+  function applyFilters(){
+    const q = searchInput.value.trim().toLowerCase();
+    productsWrap.innerHTML = '';
+    const filtered = allProducts.filter(row => {
+      const cat = (row.categoria || '').trim().toLowerCase();
+      const name = (row.nome || '').trim().toLowerCase();
+      const matchesCat = activeCat === 'todos' || cat === activeCat;
+      const matchesSearch = !q || name.includes(q);
+      return matchesCat && matchesSearch;
+    });
+    filtered.forEach(row => productsWrap.appendChild(renderCard(row)));
+    emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
+  }
+
+  catBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      catBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCat = btn.dataset.cat;
+      applyFilters();
+      productsWrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+
+  document.getElementById('seeAll').addEventListener('click', () => {
+    catBtns.forEach(b => b.classList.remove('active'));
+    activeCat = 'todos';
+    applyFilters();
+  });
+
+  // Carrega os produtos da planilha publicada como CSV
+  function loadProducts(){
+    loadingMsg.classList.add('show');
+    errorMsg.classList.remove('show');
+
+    if (!SHEET_CSV_URL || SHEET_CSV_URL.includes('COLE_AQUI')){
+      loadingMsg.classList.remove('show');
+      errorMsg.classList.add('show');
+      errorMsg.textContent = 'Configure o link da planilha (SHEET_CSV_URL) no topo do script.';
+      return;
+    }
+
+    Papa.parse(SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        loadingMsg.classList.remove('show');
+        allProducts = (results.data || []).filter(r => (r.nome || '').trim() !== '');
+        applyFilters();
+      },
+      error: () => {
+        loadingMsg.classList.remove('show');
+        errorMsg.classList.add('show');
+      }
+    });
+  }
+
+  loadProducts();
+
+  // Registra o service worker (deixa o app instalável e abrível offline)
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js").catch(() => {
+        // se falhar (ex: abrindo o arquivo direto do computador sem servidor),
+        // o app continua funcionando normalmente, só sem o modo offline/instalável
+      });
+    });
+  }
+</script>
+</body>
+</html>
