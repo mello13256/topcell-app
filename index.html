@@ -605,11 +605,10 @@
 
   // 2) Link da planilha Google publicada como CSV
   //    (Arquivo → Compartilhar → Publicar na Web → escolher a aba → formato CSV)
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1vr2elMXzFLIAnlwQHf24d6lv9dY1vWhSYK7ffxPv5aw/export?format=csv&gid=0";
-  // ⚠️ Isso só funciona se a planilha estiver compartilhada como
-  // "Qualquer pessoa com o link" → "Leitor". Se sua planilha tiver
-  // mais de uma aba, troque o "gid=0" pelo gid da aba certa
-  // (aparece na URL da planilha quando você clica na aba desejada).
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFflEx3JMeClwUWSPiAMA8YH0BV-tWW9ro-V-IQRgVSmu2ZJcPcVwqU30oKQLgZEbZ0zTBp16kwaU7/pub?gid=1164853538&single=true&output=csv";
+  // Link gerado via Arquivo → Compartilhar → Publicar na Web.
+  // Se um dia precisar trocar a aba publicada, repita o processo
+  // e troque só esse link.
 
   // Ícone de fallback por categoria, caso o produto não tenha foto_url
   const FALLBACK_ICON = {
