@@ -28,6 +28,9 @@
     --card-elev: 0 10px 26px rgba(0,0,0,0.45);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important; }
+  }
   html,body{
     background: var(--yellow);
     font-family:'Rajdhani', sans-serif;
@@ -39,6 +42,80 @@
     display:flex;
     justify-content:center;
     min-height:100vh;
+  }
+
+  /* ===== SPLASH SCREEN ===== */
+  .splash{
+    position:fixed; inset:0; z-index:999;
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(30,111,234,0.4), transparent 60%),
+      var(--navy);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; overflow:hidden;
+    animation: splashOut .5s ease-in 1.5s forwards;
+  }
+  .splash.skip{ animation:none; opacity:0; pointer-events:none; }
+  @keyframes splashOut{
+    to{ opacity:0; transform:scale(1.04); pointer-events:none; }
+  }
+  .splash-blob{
+    position:absolute; border-radius:50%; filter:blur(50px); opacity:0.55;
+  }
+  .splash-blob-a{
+    width:260px; height:260px; background: rgba(30,111,234,0.55);
+    top:-60px; left:-60px; animation: blobDrift 7s ease-in-out infinite;
+  }
+  .splash-blob-b{
+    width:220px; height:220px; background: rgba(255,200,0,0.28);
+    bottom:-50px; right:-50px; animation: blobDrift 8s ease-in-out infinite reverse;
+  }
+  @keyframes blobDrift{
+    0%,100%{ transform: translate(0,0) scale(1); }
+    50%{ transform: translate(24px,18px) scale(1.12); }
+  }
+  .splash-icon{
+    width:56px; height:76px;
+    filter: drop-shadow(0 0 16px rgba(255,200,0,0.5));
+    animation: splashIconIn .5s ease-out both;
+  }
+  @keyframes splashIconIn{
+    from{ opacity:0; transform: scale(0.6); }
+    to{ opacity:1; transform: scale(1); }
+  }
+  .splash-draw{
+    stroke-dasharray: 1; stroke-dashoffset: 1;
+    animation: splashDraw .7s ease-out .15s forwards;
+  }
+  .splash-draw-2{ animation-delay: .5s; }
+  @keyframes splashDraw{ to{ stroke-dashoffset:0; } }
+  .splash-word{
+    display:flex; flex-direction:column; align-items:center; line-height:0.85;
+    font-family:'Orbitron', sans-serif; font-weight:900;
+  }
+  .splash-top, .splash-bottom{
+    font-size:1.9rem; opacity:0; letter-spacing:2px;
+    animation: splashWordIn .5s ease-out forwards;
+  }
+  .splash-top{ color: var(--navy); -webkit-text-stroke: 1.2px var(--yellow); animation-delay: .55s; }
+  .splash-bottom{ color: var(--navy); -webkit-text-stroke: 1.2px var(--blue-bright); animation-delay: .68s; margin-top:-6px; }
+  @keyframes splashWordIn{
+    from{ opacity:0; transform: translateY(10px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .splash-bar{
+    width:120px; height:3px; border-radius:3px;
+    background: rgba(255,255,255,0.1); overflow:hidden;
+    margin-top:6px; opacity:0;
+    animation: splashWordIn .4s ease-out .85s forwards;
+  }
+  .splash-bar-fill{
+    height:100%; width:40%; border-radius:3px;
+    background: linear-gradient(90deg, var(--yellow), var(--blue-bright));
+    animation: splashBarSlide 1s ease-in-out .9s infinite;
+  }
+  @keyframes splashBarSlide{
+    0%{ transform: translateX(-120%); }
+    100%{ transform: translateX(340%); }
   }
   .app{
     width:100%;
@@ -82,6 +159,17 @@
     background-repeat:no-repeat; background-size:100% 100%;
     pointer-events:none;
   }
+  .hero-blob{
+    position:absolute; border-radius:50%; filter:blur(46px); pointer-events:none;
+  }
+  .hero-blob-a{
+    width:180px; height:180px; background: rgba(30,111,234,0.4);
+    top:-50px; right:-40px; animation: blobDrift 9s ease-in-out infinite;
+  }
+  .hero-blob-b{
+    width:150px; height:150px; background: rgba(255,200,0,0.16);
+    bottom:10px; left:-40px; animation: blobDrift 11s ease-in-out infinite reverse;
+  }
 
   .topbar{
     display:flex; align-items:center; justify-content:space-between;
@@ -118,6 +206,11 @@
     width:44px; height:60px;
     margin-right:2px;
     filter: drop-shadow(0 0 8px rgba(255,200,0,0.7));
+    animation: iconBreathe 3.2s ease-in-out infinite;
+  }
+  @keyframes iconBreathe{
+    0%,100%{ filter: drop-shadow(0 0 8px rgba(255,200,0,0.55)); }
+    50%{ filter: drop-shadow(0 0 14px rgba(255,200,0,0.85)); }
   }
   .brand-text{ text-align:left; }
   .brand-top{
@@ -204,8 +297,11 @@
     box-shadow: 0 0 0 1.5px var(--yellow), 0 6px 16px rgba(255,200,0,0.22);
     border-color: transparent;
   }
-  .cat-btn.active svg{ color: var(--yellow); }
+  .cat-btn.active svg{ color: var(--yellow); animation: catBounce .4s ease; }
   .cat-btn.active .cat-label{ color: var(--yellow); }
+  @keyframes catBounce{
+    0%{ transform: scale(1); } 40%{ transform: scale(1.25); } 100%{ transform: scale(1); }
+  }
   .cat-btn svg{
     width:24px; height:24px;
     color: var(--blue-glow);
@@ -332,13 +428,31 @@
     box-shadow: var(--card-elev);
     position:relative;
     display:none;
+    opacity:0;
+    transform: translateY(14px);
+    animation: cardIn .45s ease-out forwards;
+    transition: transform .15s ease;
   }
   .card.show{ display:block; }
+  .card:active{ transform: translateY(0) scale(0.97); }
+  @keyframes cardIn{
+    to{ opacity:1; transform: translateY(0); }
+  }
   .badge{
     position:absolute; top:0; left:12px;
     font-size:0.6rem; font-weight:800; letter-spacing:0.4px;
     padding:5px 9px 4px; border-radius:0 0 6px 6px;
     background: var(--blue-bright); color: var(--navy); z-index:2;
+    overflow:hidden;
+  }
+  .badge::after{
+    content:"";
+    position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
+    animation: badgeShine 2.4s ease-in-out .4s infinite;
+  }
+  @keyframes badgeShine{
+    0%{ left:-60%; } 35%,100%{ left:130%; }
   }
   .badge.promo{ background: var(--yellow); }
   .card-img{
@@ -480,10 +594,28 @@
 </style>
 </head>
 <body>
+
+<div class="splash" id="splash">
+  <div class="splash-blob splash-blob-a"></div>
+  <div class="splash-blob splash-blob-b"></div>
+  <svg class="splash-icon" viewBox="0 0 44 60" fill="none">
+    <rect x="4" y="2" width="36" height="56" rx="7" stroke="url(#sg1)" stroke-width="3" class="splash-draw" pathLength="1"/>
+    <line x1="16" y1="49" x2="28" y2="49" stroke="url(#sg1)" stroke-width="3" stroke-linecap="round" class="splash-draw splash-draw-2" pathLength="1"/>
+    <defs><linearGradient id="sg1" x1="0" y1="0" x2="0" y2="60"><stop offset="0" stop-color="#FFC800"/><stop offset="1" stop-color="#3AA6FF"/></linearGradient></defs>
+  </svg>
+  <div class="splash-word">
+    <span class="splash-top">TOP</span>
+    <span class="splash-bottom">CELL</span>
+  </div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
 <div class="app" id="app">
 
   <!-- HERO / HEADER -->
   <div class="hero">
+    <div class="hero-blob hero-blob-a"></div>
+    <div class="hero-blob hero-blob-b"></div>
     <div class="topbar">
       <div class="icon-btn" id="menuBtn" aria-label="Abrir menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -630,6 +762,19 @@
   const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let allProducts = [];
 
+  // Splash screen de abertura
+  const splashEl = document.getElementById('splash');
+  if (splashEl){
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      splashEl.remove();
+    } else {
+      splashEl.addEventListener('animationend', (e) => {
+        if (e.target === splashEl) splashEl.remove();
+      });
+      setTimeout(() => splashEl.remove(), 2600); // segurança, caso o evento não dispare
+    }
+  }
+
   // Side menu
   const menuBtn = document.getElementById('menuBtn');
   const closeMenu = document.getElementById('closeMenu');
@@ -727,7 +872,11 @@
       const matchesSearch = !q || name.includes(q);
       return matchesCat && matchesSearch;
     });
-    filtered.forEach(row => productsWrap.appendChild(renderCard(row)));
+    filtered.forEach((row, i) => {
+      const card = renderCard(row);
+      card.style.animationDelay = (i * 0.06) + 's';
+      productsWrap.appendChild(card);
+    });
     emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
   }
 
