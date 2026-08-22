@@ -595,7 +595,7 @@
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
   // ================================================================
   // CONFIGURAÇÃO — só mexer aqui
@@ -603,12 +603,9 @@
   // 1) WhatsApp da loja (código do país + DDD + número, sem espaços/símbolos)
   const WHATSAPP_NUMBER = "5500000000000";
 
-  // 2) Link da planilha Google publicada como CSV
-  //    (Arquivo → Compartilhar → Publicar na Web → escolher a aba → formato CSV)
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTFflEx3JMeClwUWSPiAMA8YH0BV-tWW9ro-V-IQRgVSmu2ZJcPcVwqU30oKQLgZEbZ0zTBp16kwaU7/pub?gid=1164853538&single=true&output=csv";
-  // Link gerado via Arquivo → Compartilhar → Publicar na Web.
-  // Se um dia precisar trocar a aba publicada, repita o processo
-  // e troque só esse link.
+  // 2) Supabase (mesmo projeto usado no app de gerenciamento)
+  const SUPABASE_URL = "https://jpgvlzpbzdzzrxhldrzt.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_mtjAZCJL4ZO0LjDP9zMfeQ_Jln6EYlq";
 
   // Ícone de fallback por categoria, caso o produto não tenha foto_url
   const FALLBACK_ICON = {
@@ -616,6 +613,7 @@
   };
   // ================================================================
 
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let allProducts = [];
 
   // Side menu
@@ -658,8 +656,7 @@
   let activeCat = 'celulares';
 
   function badgeInfo(row){
-    const est = (row.estoque || '').trim().toLowerCase();
-    const inStock = !(est === 'não' || est === 'nao' || est === '0' || est === 'false');
+    const inStock = row.estoque !== false;
     let label = (row.badge || '').trim();
     let cls = '';
     if (label.toLowerCase() === 'promoção' || label.toLowerCase() === 'promocao') cls = 'promo';
@@ -738,35 +735,40 @@
     applyFilters();
   });
 
-  // Carrega os produtos da planilha publicada como CSV
-  function loadProducts(){
+  // Carrega os produtos do Supabase (mesmo banco usado pelo app de
+  // gerenciamento) e escuta mudanças em tempo real — sem delay de cache.
+  async function loadProducts(){
     loadingMsg.classList.add('show');
     errorMsg.classList.remove('show');
 
-    if (!SHEET_CSV_URL || SHEET_CSV_URL.includes('COLE_AQUI')){
-      loadingMsg.classList.remove('show');
+    const { data, error } = await supabaseClient
+      .from('produtos')
+      .select('*')
+      .order('updated_at', { ascending: false });
+
+    loadingMsg.classList.remove('show');
+
+    if (error){
       errorMsg.classList.add('show');
-      errorMsg.textContent = 'Configure o link da planilha (SHEET_CSV_URL) no topo do script.';
+      errorMsg.textContent = 'Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.';
       return;
     }
 
-    Papa.parse(SHEET_CSV_URL, {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        loadingMsg.classList.remove('show');
-        allProducts = (results.data || []).filter(r => (r.nome || '').trim() !== '');
-        applyFilters();
-      },
-      error: () => {
-        loadingMsg.classList.remove('show');
-        errorMsg.classList.add('show');
-      }
-    });
+    allProducts = data || [];
+    applyFilters();
   }
 
   loadProducts();
+
+  // Realtime: qualquer alteração feita pelo app de gerenciamento
+  // (novo produto, preço, estoque, foto) aparece aqui na hora,
+  // sem precisar recarregar a página.
+  supabaseClient
+    .channel('produtos-publico')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, () => {
+      loadProducts();
+    })
+    .subscribe();
 
   // Registra o service worker (deixa o app instalável e abrível offline)
   if ("serviceWorker" in navigator) {
