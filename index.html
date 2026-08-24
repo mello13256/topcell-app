@@ -203,8 +203,8 @@
     line-height:0.85;
   }
   .brand-icon{
-    width:44px; height:60px;
-    margin-right:2px;
+    width:30px; height:41px;
+    margin-right:4px;
     filter: drop-shadow(0 0 8px rgba(255,200,0,0.7));
     animation: iconBreathe 3.2s ease-in-out infinite;
   }
@@ -212,31 +212,31 @@
     0%,100%{ filter: drop-shadow(0 0 8px rgba(255,200,0,0.55)); }
     50%{ filter: drop-shadow(0 0 14px rgba(255,200,0,0.85)); }
   }
-  .brand-text{ text-align:left; }
+  .brand-text{ text-align:left; white-space:nowrap; }
   .brand-top{
-    font-size:2.6rem;
+    font-size:2.05rem;
     font-weight:900;
     color: var(--navy);
-    -webkit-text-stroke: 1.5px var(--yellow);
+    -webkit-text-stroke: 1.2px var(--yellow);
     text-shadow:
       0 0 6px var(--yellow),
       0 0 16px rgba(255,200,0,0.6),
       0 0 30px rgba(255,200,0,0.35);
-    display:block;
+    display:inline-block;
     letter-spacing:1px;
   }
   .brand-bottom{
-    font-size:2.6rem;
+    font-size:2.05rem;
     font-weight:900;
     color: var(--navy);
-    -webkit-text-stroke: 1.5px var(--blue-bright);
+    -webkit-text-stroke: 1.2px var(--blue-bright);
     text-shadow:
       0 0 6px var(--blue-bright),
       0 0 16px rgba(58,166,255,0.6),
       0 0 30px rgba(58,166,255,0.35);
-    display:block;
+    display:inline-block;
     letter-spacing:1px;
-    margin-top:-10px;
+    margin-left:0.28em;
   }
   .tagline{
     text-align:center;
@@ -500,9 +500,9 @@
   }
   .card .details-btn{
     width:100%;
-    background: rgba(58,166,255,0.08);
-    border:1px solid rgba(58,166,255,0.35);
-    color: var(--blue-glow);
+    background: rgba(37,211,102,0.10);
+    border:1px solid rgba(37,211,102,0.5);
+    color: #25D366;
     font-family:'Rajdhani', sans-serif;
     font-weight:700;
     font-size:0.74rem;
@@ -510,9 +510,14 @@
     padding:9px 0;
     border-radius:999px;
     cursor:pointer;
-    transition: background .15s ease, border-color .15s ease;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
   }
-  .card .details-btn:active{ background: rgba(58,166,255,0.22); border-color: var(--blue-bright); }
+  .card .details-btn:hover,
+  .card .details-btn:active{
+    background: #25D366;
+    border-color: #25D366;
+    color: #fff;
+  }
 
   .empty-msg{
     display:none;
@@ -588,7 +593,7 @@
   }
 
   @media (max-width:360px){
-    .brand-top, .brand-bottom{ font-size:2.2rem; }
+    .brand-top, .brand-bottom{ font-size:1.65rem; }
     .card{ flex-basis:150px; }
   }
 </style>
@@ -747,7 +752,7 @@
   // CONFIGURAÇÃO — só mexer aqui
   // ================================================================
   // 1) WhatsApp da loja (código do país + DDD + número, sem espaços/símbolos)
-  const WHATSAPP_NUMBER = "5500000000000";
+  const WHATSAPP_NUMBER = "554198546460";
 
   // 2) Supabase (mesmo projeto usado no app de gerenciamento)
   const SUPABASE_URL = "https://jpgvlzpbzdzzrxhldrzt.supabase.co";
@@ -843,7 +848,7 @@
       <h3>${name}</h3>
       <div class="variant">${row.variante || ''}</div>
       <div class="price">R$ ${row.preco || ''}</div>
-      <button class="details-btn">${inStock ? 'VER DETALHES' : 'INDISPONÍVEL'}</button>
+      <button class="details-btn">${inStock ? 'Comprar' : 'INDISPONÍVEL'}</button>
     `;
 
     const imgEl = card.querySelector('.card-img img');
@@ -855,7 +860,7 @@
 
     card.querySelector('.details-btn').addEventListener('click', () => {
       if (!inStock) return;
-      const msg = encodeURIComponent(`Olá! Tenho interesse no produto: ${name}`);
+      const msg = encodeURIComponent(`Olá! Quero comprar: ${name}`);
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
     });
 
