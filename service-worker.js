@@ -3,7 +3,7 @@
 // mas NUNCA guardar em cache a planilha de estoque nem as fotos dos
 // produtos — essas duas coisas sempre buscam dado novo na rede.
 
-const CACHE_NAME = "topcell-shell-v5";
+const CACHE_NAME = "topcell-shell-v6";
 const APP_SHELL = [
   "./manifest.json",
   "./icon-192.png",

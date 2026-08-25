@@ -370,25 +370,29 @@
   /* ===== TRANSIÇÃO ENTRE CATEGORIAS ===== */
   .transition-dot{
     position:fixed;
-    background: radial-gradient(circle at 35% 30%, #d6f1ff, #3AA6FF 55%, #1E6FEA 100%);
-    box-shadow: 0 0 16px 4px rgba(79,195,255,0.85);
+    background: radial-gradient(circle at 35% 30%, #3AA6FF, #1E6FEA 55%, #0B2E6B 100%);
+    box-shadow: 0 0 14px 3px rgba(30,111,234,0.6);
     border-radius:16px;
     pointer-events:none;
     z-index:500;
     opacity:0.96;
-    transition: left .38s cubic-bezier(.3,0,.2,1), top .38s cubic-bezier(.3,0,.2,1),
-                width .38s cubic-bezier(.3,0,.2,1), height .38s cubic-bezier(.3,0,.2,1),
-                border-radius .38s ease;
+    transition: left .5s cubic-bezier(.3,0,.2,1), top .5s cubic-bezier(.3,0,.2,1),
+                width .5s cubic-bezier(.3,0,.2,1), height .5s cubic-bezier(.3,0,.2,1),
+                border-radius .5s ease;
   }
-  .transition-wave{
+  /* Anéis que se expandem a partir do centro, tipo o círculo que se
+     forma quando uma pedra cai na água — não preenchem a tela, só a
+     borda viaja pra fora enquanto desaparece. */
+  .transition-ring{
     position:fixed; top:50%; left:50%;
     width:0; height:0; border-radius:50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(79,195,255,0.8) 45%, rgba(30,111,234,0.4) 70%, transparent 82%);
+    border: 2px solid rgba(58,166,255,0.7);
+    box-shadow: 0 0 18px 3px rgba(30,111,234,0.3), inset 0 0 18px 3px rgba(30,111,234,0.18);
     transform: translate(-50%,-50%);
     pointer-events:none;
     z-index:499;
-    opacity:1;
-    transition: width .48s cubic-bezier(.2,.8,.2,1), height .48s cubic-bezier(.2,.8,.2,1), opacity .26s ease;
+    opacity:0.9;
+    transition: width 1.3s cubic-bezier(.19,.78,.32,1), height 1.3s cubic-bezier(.19,.78,.32,1), opacity 1.3s ease-out;
   }
   .card{
     flex:0 0 165px;
@@ -813,28 +817,27 @@
     return card;
   }
 
-  // Renderiza tudo: os Destaques (sempre visíveis) e, se houver uma
-  // categoria escolhida ou uma busca ativa, a seção de categoria também.
+  // Renderiza tudo: os Destaques só aparecem na tela inicial (nenhuma
+  // categoria/busca ativa); a partir daí, some por completo e dá lugar
+  // à seção da categoria escolhida.
   function render(){
     const q = searchInput.value.trim().toLowerCase();
     const showCategory = !!activeCat || !!q;
 
-    // ---- Destaques ----
-    destaquesGrid.innerHTML = '';
-    const destaqueItems = allProducts.filter(row => row.destaque === true);
-    destaqueItems.forEach((row, i) => {
-      const card = renderCard(row);
-      card.style.animationDelay = (i * 0.05) + 's';
-      destaquesGrid.appendChild(card);
-    });
-    destaquesGrid.classList.toggle('full', !showCategory);
-
+    // ---- Destaques (só na tela inicial) ----
     if (!showCategory){
+      destaquesGrid.innerHTML = '';
+      const destaqueItems = allProducts.filter(row => row.destaque === true);
+      destaqueItems.forEach((row, i) => {
+        const card = renderCard(row);
+        card.style.animationDelay = (i * 0.05) + 's';
+        destaquesGrid.appendChild(card);
+      });
+      destaquesGrid.classList.add('full');
       destaquesSection.style.display = '';
       destaquesEmptyMsg.classList.toggle('show', destaqueItems.length === 0 && allProducts.length > 0);
     } else {
-      destaquesSection.style.display = destaqueItems.length ? '' : 'none';
-      destaquesEmptyMsg.classList.remove('show');
+      destaquesSection.style.display = 'none';
     }
 
     // ---- Categoria escolhida / busca ----
@@ -860,10 +863,12 @@
   }
 
   // Anima os cards de "sourceEl" virando bolinhas azuis brilhantes que se
-  // juntam no centro e explodem numa onda — e troca o conteúdo bem no
-  // instante em que a onda começa a se espalhar. Tudo em ~1.1s (bem
-  // dentro do limite de 3s), e é pulado inteiramente se o aparelho
-  // pedir "reduzir movimento".
+  // Anima os cards dos Destaques virando bolinhas azul-escuro que se
+  // juntam no centro, e depois soltam ondas de anel se expandindo —
+  // tipo uma pedra caindo na água, não uma tela cheia de cor. A nova
+  // categoria aparece com um fade suave por baixo dos anéis. No total
+  // fica uns 2s (dentro do limite de 3s), e é pulado inteiramente se o
+  // aparelho pedir "reduzir movimento".
   function playTransition(sourceEl, onSwap){
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const cards = sourceEl ? Array.from(sourceEl.querySelectorAll('.card.show')) : [];
@@ -905,37 +910,59 @@
       dots.forEach((dot) => dot.remove());
       sourceEl.style.visibility = '';
 
-      const wave = document.createElement('div');
-      wave.className = 'transition-wave';
-      transitionOverlay.appendChild(wave);
-      void wave.offsetWidth;
-
-      onSwap(); // troca o conteúdo já — a onda "revela" por cima
-
+      // troca o conteúdo já (fica invisível por baixo dos anéis, e
+      // aparece com um fade suave, tipo a tela sendo "revelada")
+      onSwap();
+      categorySection.style.opacity = '0';
       requestAnimationFrame(() => {
-        const maxDim = Math.max(window.innerWidth, window.innerHeight) * 2.4;
-        wave.style.width = maxDim + 'px';
-        wave.style.height = maxDim + 'px';
+        categorySection.style.transition = 'opacity 1.1s ease-out';
+        categorySection.style.opacity = '1';
       });
 
+      // dois anéis, com um pequeno atraso entre eles, tipo ondas
+      // concêntricas na água — sem preencher a tela, só a borda viaja.
+      const spawnRing = (delay) => {
+        setTimeout(() => {
+          const ring = document.createElement('div');
+          ring.className = 'transition-ring';
+          transitionOverlay.appendChild(ring);
+          void ring.offsetWidth;
+          requestAnimationFrame(() => {
+            const size = Math.max(window.innerWidth, window.innerHeight) * 0.85;
+            ring.style.width = size + 'px';
+            ring.style.height = size + 'px';
+            ring.style.opacity = '0';
+          });
+          setTimeout(() => ring.remove(), 1350);
+        }, delay);
+      };
+      spawnRing(0);
+      spawnRing(220);
+
       setTimeout(() => {
-        wave.style.opacity = '0';
-        setTimeout(() => wave.remove(), 260);
-      }, 480);
-    }, 380);
+        categorySection.style.transition = '';
+      }, 1300);
+    }, 500);
   }
 
   function selectCategory(cat){
-    const alreadyShowingCategory = categorySection.style.display !== 'none';
-    const sourceEl = alreadyShowingCategory ? productsWrap : destaquesGrid;
+    // a animação só acontece saindo da aba inicial (Destaques);
+    // trocar entre categorias depois disso é instantâneo.
+    const cameFromDestaques = activeCat === null && destaquesSection.style.display !== 'none';
 
     catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
 
-    playTransition(sourceEl, () => {
+    if (cameFromDestaques){
+      playTransition(destaquesGrid, () => {
+        activeCat = cat;
+        searchInput.value = '';
+        render();
+      });
+    } else {
       activeCat = cat;
       searchInput.value = '';
       render();
-    });
+    }
   }
 
   catBtns.forEach(btn => {
