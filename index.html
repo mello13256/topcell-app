@@ -736,11 +736,11 @@
   <div class="side-menu" id="sideMenu">
     <button class="close-menu" id="closeMenu">✕</button>
     <h3>TOP CELL</h3>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Início</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/></svg> Celulares</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4z"/></svg> Serviços</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/></svg> Acessórios</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Sobre a loja</a>
+    <a href="#" id="menuInicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Início</a>
+    <a href="#" class="menu-cat" data-cat="celulares"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/></svg> Celulares</a>
+    <a href="#" class="menu-cat" data-cat="servicos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4z"/></svg> Serviços</a>
+    <a href="#" class="menu-cat" data-cat="acessorios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/></svg> Acessórios</a>
+    <a href="#" id="menuSobre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Sobre a loja</a>
     <a href="https://wa.me/5541992353049" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Falar no WhatsApp</a>
   </div>
 
@@ -803,19 +803,13 @@
     });
   });
 
-  // Carousel dots sync
+  // Carousel dots sync (sem autoplay — o usuário arrasta manualmente)
   const track = document.getElementById('promoTrack');
   const dots = document.querySelectorAll('#dots .dot');
   track.addEventListener('scroll', () => {
     const idx = Math.round(track.scrollLeft / track.clientWidth);
     dots.forEach((d,i) => d.classList.toggle('active', i === idx));
   });
-  // autoplay
-  let autoIdx = 0;
-  setInterval(() => {
-    autoIdx = (autoIdx + 1) % dots.length;
-    track.scrollTo({ left: autoIdx * track.clientWidth, behavior: 'smooth' });
-  }, 5000);
 
   // Category filter + render dinâmico
   const catBtns = document.querySelectorAll('.cat-btn');
@@ -892,14 +886,15 @@
     emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
   }
 
+  function selectCategory(cat){
+    catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+    activeCat = cat;
+    applyFilters();
+    productsWrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
   catBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      catBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      activeCat = btn.dataset.cat;
-      applyFilters();
-      productsWrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
-    });
+    btn.addEventListener('click', () => selectCategory(btn.dataset.cat));
   });
 
   searchInput.addEventListener('input', applyFilters);
@@ -908,6 +903,31 @@
     catBtns.forEach(b => b.classList.remove('active'));
     activeCat = 'todos';
     applyFilters();
+  });
+
+  // Itens do menu lateral que são categorias -> mesmo comportamento
+  // dos botões de categoria da tela inicial, só que fecham o menu antes.
+  document.querySelectorAll('.menu-cat').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      hideMenu();
+      selectCategory(link.dataset.cat);
+    });
+  });
+
+  // "Início" no menu lateral -> recarrega o app do zero, inclusive
+  // com a animação de abertura tocando de novo.
+  document.getElementById('menuInicio').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.reload();
+  });
+
+  // "Sobre a loja" -> abre o WhatsApp já perguntando sobre a loja
+  document.getElementById('menuSobre').addEventListener('click', (e) => {
+    e.preventDefault();
+    hideMenu();
+    const msg = encodeURIComponent('Olá! Quero saber mais sobre a loja.');
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
   });
 
   // Carrega os produtos do Supabase (mesmo banco usado pelo app de
