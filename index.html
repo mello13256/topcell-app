@@ -316,73 +316,6 @@
     transition: color .2s ease;
   }
 
-  /* ===== PROMO CAROUSEL ===== */
-  .promo-wrap{
-    margin: 22px 20px 0;
-    position:relative;
-  }
-  .promo-track{
-    display:flex;
-    overflow-x:auto;
-    scroll-snap-type:x mandatory;
-    border-radius:20px;
-    scrollbar-width:none;
-  }
-  .promo-track::-webkit-scrollbar{ display:none; }
-  .promo-slide{
-    scroll-snap-align:start;
-    flex:0 0 100%;
-    min-height:230px;
-    border-radius:18px;
-    background: linear-gradient(135deg, #071228 0%, #0A1E42 60%, #0d2350 100%);
-    border:1px solid rgba(58,166,255,0.25);
-    position:relative;
-    overflow:hidden;
-    padding: 24px 22px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    box-shadow: var(--card-elev);
-  }
-  .promo-slide::before{
-    content:"";
-    position:absolute; inset:0;
-    background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
-    background-size: 5px 5px;
-    pointer-events:none;
-  }
-  .promo-slide .glow-orb{
-    position:absolute; right:-40px; bottom:-40px;
-    width:180px; height:180px; border-radius:50%;
-    background: radial-gradient(circle, rgba(58,166,255,0.28), transparent 70%);
-  }
-  .promo-eyebrow{ font-size:1.45rem; font-weight:800; font-family:'Orbitron',sans-serif; color:var(--blue-glow); line-height:1.15;}
-  .promo-headline{ font-size:1.45rem; font-weight:800; font-family:'Orbitron',sans-serif; color:var(--yellow); line-height:1.15; margin-bottom:10px;}
-  .promo-sub{ font-size:0.95rem; color:#c3d3f0; font-weight:500; margin-bottom:16px; max-width:68%;}
-  .promo-cta{
-    align-self:flex-start;
-    background: var(--yellow);
-    border:none;
-    color: var(--navy);
-    font-family:'Rajdhani',sans-serif;
-    font-weight:800;
-    letter-spacing:0.5px;
-    font-size:0.8rem;
-    padding:10px 20px;
-    border-radius:999px;
-    cursor:pointer;
-  }
-  .promo-emoji{
-    position:absolute; right:16px; top:50%; transform:translateY(-50%);
-    font-size:5.5rem;
-    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
-  }
-  .dots{
-    display:flex; justify-content:center; gap:7px; margin-top:10px;
-  }
-  .dot{ width:7px; height:7px; border-radius:50%; background: rgba(30,50,90,0.4); transition:.2s;}
-  .dot.active{ background: var(--navy); width:20px; border-radius:5px;}
-
   /* ===== SECTION HEADER ===== */
   .section-head{
     display:flex; align-items:center; gap:10px;
@@ -672,39 +605,6 @@
     </div>
   </div>
 
-  <!-- PROMO CAROUSEL -->
-  <div class="promo-wrap">
-    <div class="promo-track" id="promoTrack">
-      <div class="promo-slide">
-        <div class="glow-orb"></div>
-        <div class="promo-eyebrow">TECNOLOGIA</div>
-        <div class="promo-headline">QUE CONECTA</div>
-        <div class="promo-sub">Produtos e serviços com qualidade!</div>
-        <button class="promo-cta">VER OFERTAS</button>
-        <div class="promo-emoji">📱</div>
-      </div>
-      <div class="promo-slide">
-        <div class="glow-orb"></div>
-        <div class="promo-eyebrow">ASSISTÊNCIA</div>
-        <div class="promo-headline">RÁPIDA E SEGURA</div>
-        <div class="promo-sub">Conserto de tela, bateria e muito mais.</div>
-        <button class="promo-cta">FALAR AGORA</button>
-        <div class="promo-emoji">🔧</div>
-      </div>
-      <div class="promo-slide">
-        <div class="glow-orb"></div>
-        <div class="promo-eyebrow">TROCA COM</div>
-        <div class="promo-headline">DESCONTO</div>
-        <div class="promo-sub">Dê seu aparelho usado na troca.</div>
-        <button class="promo-cta">SAIBA MAIS</button>
-        <div class="promo-emoji">🔁</div>
-      </div>
-    </div>
-    <div class="dots" id="dots">
-      <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
-    </div>
-  </div>
-
   <!-- DESTAQUES -->
   <div class="section-head">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7-5.4-4.6 7.1-.6z"/></svg>
@@ -794,21 +694,6 @@
   // Top whatsapp icon
   document.getElementById('topWaBtn').addEventListener('click', () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
-  });
-
-  // Botões dos banners promocionais (VER OFERTAS / FALAR AGORA / SAIBA MAIS)
-  document.querySelectorAll('.promo-cta').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
-    });
-  });
-
-  // Carousel dots sync (sem autoplay — o usuário arrasta manualmente)
-  const track = document.getElementById('promoTrack');
-  const dots = document.querySelectorAll('#dots .dot');
-  track.addEventListener('scroll', () => {
-    const idx = Math.round(track.scrollLeft / track.clientWidth);
-    dots.forEach((d,i) => d.classList.toggle('active', i === idx));
   });
 
   // Category filter + render dinâmico
