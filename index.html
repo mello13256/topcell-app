@@ -352,6 +352,44 @@
     scrollbar-width:none;
   }
   .products::-webkit-scrollbar{ display:none; }
+
+  /* Destaques em modo "tela cheia" (antes de qualquer categoria ser
+     escolhida) — vira uma grade de 2 colunas em vez da tira horizontal. */
+  .destaques-grid.full{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow:visible;
+    padding: 0 20px 8px;
+  }
+  .destaques-grid.full .card{
+    flex:none;
+    width:100%;
+  }
+  .destaques-grid.full .card-img{ height:140px; }
+
+  /* ===== TRANSIÇÃO ENTRE CATEGORIAS ===== */
+  .transition-dot{
+    position:fixed;
+    background: radial-gradient(circle at 35% 30%, #d6f1ff, #3AA6FF 55%, #1E6FEA 100%);
+    box-shadow: 0 0 16px 4px rgba(79,195,255,0.85);
+    border-radius:16px;
+    pointer-events:none;
+    z-index:500;
+    opacity:0.96;
+    transition: left .38s cubic-bezier(.3,0,.2,1), top .38s cubic-bezier(.3,0,.2,1),
+                width .38s cubic-bezier(.3,0,.2,1), height .38s cubic-bezier(.3,0,.2,1),
+                border-radius .38s ease;
+  }
+  .transition-wave{
+    position:fixed; top:50%; left:50%;
+    width:0; height:0; border-radius:50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(79,195,255,0.8) 45%, rgba(30,111,234,0.4) 70%, transparent 82%);
+    transform: translate(-50%,-50%);
+    pointer-events:none;
+    z-index:499;
+    opacity:1;
+    transition: width .48s cubic-bezier(.2,.8,.2,1), height .48s cubic-bezier(.2,.8,.2,1), opacity .26s ease;
+  }
   .card{
     flex:0 0 165px;
     background: linear-gradient(160deg, #0a1526 0%, #050b1a 100%);
@@ -586,7 +624,7 @@
     </div>
 
     <div class="categories">
-      <div class="cat-btn active" data-cat="celulares">
+      <div class="cat-btn" data-cat="celulares">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
         <span class="cat-label">CELULARES</span>
       </div>
@@ -605,19 +643,33 @@
     </div>
   </div>
 
-  <!-- DESTAQUES -->
-  <div class="section-head">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7-5.4-4.6 7.1-.6z"/></svg>
-    <h2>DESTAQUES</h2>
-    <div class="line"></div>
-    <a class="see-all" id="seeAll">Ver todos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg></a>
+  <!-- DESTAQUES (sempre presente; ocupa a página toda até uma categoria ser escolhida) -->
+  <div class="destaques-section" id="destaquesSection">
+    <div class="section-head">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7-5.4-4.6 7.1-.6z"/></svg>
+      <h2>DESTAQUES</h2>
+      <div class="line"></div>
+    </div>
+    <div class="products destaques-grid" id="destaquesGrid"></div>
+    <div class="empty-msg" id="destaquesEmptyMsg">Nenhum destaque no momento. Escolha uma categoria acima para ver os produtos.</div>
   </div>
 
-  <div class="products" id="products">
-    <div class="loading-msg" id="loadingMsg">Carregando produtos...</div>
+  <!-- CATEGORIA ESCOLHIDA PELO CLIENTE -->
+  <div class="category-section" id="categorySection" style="display:none;">
+    <div class="section-head">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.6 1.6 7-6.2-3.9-6.2 3.9 1.6-7-5.4-4.6 7.1-.6z"/></svg>
+      <h2 id="categoryTitle">CATEGORIA</h2>
+      <div class="line"></div>
+    </div>
+    <div class="products" id="products"></div>
+    <div class="empty-msg" id="emptyMsg">Nenhum produto encontrado.</div>
   </div>
-  <div class="empty-msg" id="emptyMsg">Nenhum produto encontrado.</div>
+
+  <div class="loading-msg" id="loadingMsg">Carregando produtos...</div>
   <div class="error-msg" id="errorMsg">Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.</div>
+
+  <!-- camada onde a animação de transição entre categorias acontece -->
+  <div id="transitionOverlay"></div>
 
   <!-- WHATSAPP CTA -->
   <a href="https://wa.me/5541992353049?text=Ol%C3%A1!%20Vim%20pelo%20app%20da%20Top%20Cell%20e%20quero%20saber%20mais." class="wa-cta" target="_blank" rel="noopener">
@@ -698,12 +750,20 @@
 
   // Category filter + render dinâmico
   const catBtns = document.querySelectorAll('.cat-btn');
+  const destaquesSection = document.getElementById('destaquesSection');
+  const destaquesGrid = document.getElementById('destaquesGrid');
+  const destaquesEmptyMsg = document.getElementById('destaquesEmptyMsg');
+  const categorySection = document.getElementById('categorySection');
+  const categoryTitle = document.getElementById('categoryTitle');
   const productsWrap = document.getElementById('products');
   const emptyMsg = document.getElementById('emptyMsg');
   const loadingMsg = document.getElementById('loadingMsg');
   const errorMsg = document.getElementById('errorMsg');
   const searchInput = document.getElementById('searchInput');
-  let activeCat = 'celulares';
+  const transitionOverlay = document.getElementById('transitionOverlay');
+  let activeCat = null; // nenhuma categoria escolhida ainda -> Destaques ocupa a tela toda
+
+  const CATEGORY_LABELS = { celulares:'CELULARES', servicos:'SERVIÇOS', acessorios:'ACESSÓRIOS', outros:'OUTROS' };
 
   function badgeInfo(row){
     const inStock = row.estoque !== false;
@@ -753,42 +813,137 @@
     return card;
   }
 
-  function applyFilters(){
+  // Renderiza tudo: os Destaques (sempre visíveis) e, se houver uma
+  // categoria escolhida ou uma busca ativa, a seção de categoria também.
+  function render(){
     const q = searchInput.value.trim().toLowerCase();
-    productsWrap.innerHTML = '';
-    const filtered = allProducts.filter(row => {
-      const cat = (row.categoria || '').trim().toLowerCase();
-      const name = (row.nome || '').trim().toLowerCase();
-      const matchesCat = activeCat === 'todos' || cat === activeCat;
-      const matchesSearch = !q || name.includes(q);
-      return matchesCat && matchesSearch;
-    });
-    filtered.forEach((row, i) => {
+    const showCategory = !!activeCat || !!q;
+
+    // ---- Destaques ----
+    destaquesGrid.innerHTML = '';
+    const destaqueItems = allProducts.filter(row => row.destaque === true);
+    destaqueItems.forEach((row, i) => {
       const card = renderCard(row);
-      card.style.animationDelay = (i * 0.06) + 's';
-      productsWrap.appendChild(card);
+      card.style.animationDelay = (i * 0.05) + 's';
+      destaquesGrid.appendChild(card);
     });
-    emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
+    destaquesGrid.classList.toggle('full', !showCategory);
+
+    if (!showCategory){
+      destaquesSection.style.display = '';
+      destaquesEmptyMsg.classList.toggle('show', destaqueItems.length === 0 && allProducts.length > 0);
+    } else {
+      destaquesSection.style.display = destaqueItems.length ? '' : 'none';
+      destaquesEmptyMsg.classList.remove('show');
+    }
+
+    // ---- Categoria escolhida / busca ----
+    categorySection.style.display = showCategory ? '' : 'none';
+    if (showCategory){
+      categoryTitle.textContent = activeCat ? (CATEGORY_LABELS[activeCat] || activeCat.toUpperCase()) : 'RESULTADOS DA BUSCA';
+
+      productsWrap.innerHTML = '';
+      const filtered = allProducts.filter(row => {
+        const cat = (row.categoria || '').trim().toLowerCase();
+        const name = (row.nome || '').trim().toLowerCase();
+        const matchesCat = !activeCat || cat === activeCat;
+        const matchesSearch = !q || name.includes(q);
+        return matchesCat && matchesSearch;
+      });
+      filtered.forEach((row, i) => {
+        const card = renderCard(row);
+        card.style.animationDelay = (i * 0.05) + 's';
+        productsWrap.appendChild(card);
+      });
+      emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
+    }
+  }
+
+  // Anima os cards de "sourceEl" virando bolinhas azuis brilhantes que se
+  // juntam no centro e explodem numa onda — e troca o conteúdo bem no
+  // instante em que a onda começa a se espalhar. Tudo em ~1.1s (bem
+  // dentro do limite de 3s), e é pulado inteiramente se o aparelho
+  // pedir "reduzir movimento".
+  function playTransition(sourceEl, onSwap){
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cards = sourceEl ? Array.from(sourceEl.querySelectorAll('.card.show')) : [];
+
+    if (reduceMotion || cards.length === 0 || !transitionOverlay){
+      onSwap();
+      return;
+    }
+
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+
+    const dots = cards.map((card) => {
+      const r = card.getBoundingClientRect();
+      const dot = document.createElement('div');
+      dot.className = 'transition-dot';
+      dot.style.left = r.left + 'px';
+      dot.style.top = r.top + 'px';
+      dot.style.width = r.width + 'px';
+      dot.style.height = r.height + 'px';
+      transitionOverlay.appendChild(dot);
+      return dot;
+    });
+
+    sourceEl.style.visibility = 'hidden';
+    void transitionOverlay.offsetWidth; // força o navegador a registrar o estado inicial
+
+    requestAnimationFrame(() => {
+      dots.forEach((dot) => {
+        dot.style.left = (cx - 6) + 'px';
+        dot.style.top = (cy - 6) + 'px';
+        dot.style.width = '12px';
+        dot.style.height = '12px';
+        dot.style.borderRadius = '50%';
+      });
+    });
+
+    setTimeout(() => {
+      dots.forEach((dot) => dot.remove());
+      sourceEl.style.visibility = '';
+
+      const wave = document.createElement('div');
+      wave.className = 'transition-wave';
+      transitionOverlay.appendChild(wave);
+      void wave.offsetWidth;
+
+      onSwap(); // troca o conteúdo já — a onda "revela" por cima
+
+      requestAnimationFrame(() => {
+        const maxDim = Math.max(window.innerWidth, window.innerHeight) * 2.4;
+        wave.style.width = maxDim + 'px';
+        wave.style.height = maxDim + 'px';
+      });
+
+      setTimeout(() => {
+        wave.style.opacity = '0';
+        setTimeout(() => wave.remove(), 260);
+      }, 480);
+    }, 380);
   }
 
   function selectCategory(cat){
+    const alreadyShowingCategory = categorySection.style.display !== 'none';
+    const sourceEl = alreadyShowingCategory ? productsWrap : destaquesGrid;
+
     catBtns.forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
-    activeCat = cat;
-    applyFilters();
-    productsWrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+    playTransition(sourceEl, () => {
+      activeCat = cat;
+      searchInput.value = '';
+      render();
+    });
   }
 
   catBtns.forEach(btn => {
     btn.addEventListener('click', () => selectCategory(btn.dataset.cat));
   });
 
-  searchInput.addEventListener('input', applyFilters);
+  searchInput.addEventListener('input', render);
 
-  document.getElementById('seeAll').addEventListener('click', () => {
-    catBtns.forEach(b => b.classList.remove('active'));
-    activeCat = 'todos';
-    applyFilters();
-  });
 
   // Itens do menu lateral que são categorias -> mesmo comportamento
   // dos botões de categoria da tela inicial, só que fecham o menu antes.
@@ -835,7 +990,7 @@
     }
 
     allProducts = data || [];
-    applyFilters();
+    render();
   }
 
   loadProducts();
