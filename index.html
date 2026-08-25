@@ -720,7 +720,7 @@
   <div class="error-msg" id="errorMsg">Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.</div>
 
   <!-- WHATSAPP CTA -->
-  <a href="https://wa.me/5500000000000?text=Ol%C3%A1!%20Vim%20pelo%20app%20da%20Top%20Cell%20e%20quero%20saber%20mais." class="wa-cta" target="_blank" rel="noopener">
+  <a href="https://wa.me/5541992353049?text=Ol%C3%A1!%20Vim%20pelo%20app%20da%20Top%20Cell%20e%20quero%20saber%20mais." class="wa-cta" target="_blank" rel="noopener">
     <div class="wa-icon">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.02c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.17-4.94-4.37-.14-.2-1.19-1.58-1.19-3.01 0-1.43.75-2.13 1.02-2.42.27-.3.6-.37.79-.37.2 0 .4 0 .57.01.18.01.43-.07.68.52.24.6.83 2.05.9 2.2.07.15.12.32.02.52-.1.2-.15.32-.3.5-.14.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.3.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.35 1.44.3.15.47.13.65-.07.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.01.96.29.15.49.22.56.35.07.13.07.75-.17 1.43z"/></svg>
     </div>
@@ -741,7 +741,7 @@
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 1 5.4-5.4z"/></svg> Serviços</a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/></svg> Acessórios</a>
     <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg> Sobre a loja</a>
-    <a href="https://wa.me/5500000000000" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Falar no WhatsApp</a>
+    <a href="https://wa.me/5541992353049" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Falar no WhatsApp</a>
   </div>
 
 </div>
@@ -794,6 +794,13 @@
   // Top whatsapp icon
   document.getElementById('topWaBtn').addEventListener('click', () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+  });
+
+  // Botões dos banners promocionais (VER OFERTAS / FALAR AGORA / SAIBA MAIS)
+  document.querySelectorAll('.promo-cta').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}`, '_blank');
+    });
   });
 
   // Carousel dots sync
