@@ -126,7 +126,7 @@
       linear-gradient(180deg, var(--yellow) 0%, var(--yellow) 100%);
     position:relative;
     overflow-x:hidden;
-    padding-bottom:100px;
+    padding-bottom:28px;
   }
 
   /* ===== HEADER ===== */
@@ -503,38 +503,6 @@
   }
   .empty-msg.show{ display:block; }
 
-  /* ===== FLOATING WHATSAPP CTA ===== */
-  .wa-cta{
-    position: fixed;
-    bottom:16px; left:50%;
-    transform: translateX(-50%);
-    width:calc(100% - 32px); max-width:380px;
-    background: linear-gradient(120deg, #071228, #0A1E42);
-    border:1px solid rgba(58,166,255,0.3);
-    border-radius:16px;
-    padding:12px 14px;
-    display:flex; align-items:center; gap:12px;
-    text-decoration:none;
-    box-shadow: var(--card-elev);
-    z-index:20;
-    cursor:pointer;
-  }
-  .wa-cta .wa-icon{
-    width:38px; height:38px; border-radius:50%;
-    background: var(--yellow);
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0;
-    color: var(--navy);
-  }
-  .wa-cta .wa-icon svg{ width:19px; height:19px; }
-  .wa-cta .wa-text{ flex:1; }
-  .wa-cta .wa-text strong{
-    display:block; color:#fff; font-family:'Orbitron',sans-serif;
-    font-size:0.82rem; letter-spacing:0.3px;
-  }
-  .wa-cta .wa-text span{ display:block; color:#7f93b8; font-size:0.66rem; font-weight:600; margin-top:2px;}
-  .wa-cta .chev{ width:16px; height:16px; color:var(--blue-glow); flex-shrink:0;}
-
   /* ===== SIDE MENU ===== */
   .overlay{
     position:fixed; inset:0; background:rgba(0,0,0,0.55);
@@ -562,6 +530,11 @@
     padding: 13px 4px; border-bottom:1px solid rgba(58,166,255,0.15);
   }
   .side-menu a svg{ width:18px; height:18px; color:var(--blue-glow); }
+  #menuInicio{
+    -webkit-user-select:none; user-select:none;
+    -webkit-touch-callout:none;
+    touch-action: manipulation;
+  }
   .close-menu{
     position:absolute; top:20px; right:18px;
     color:#8fa3c9; background:none; border:none; font-size:1.4rem; cursor:pointer;
@@ -675,18 +648,6 @@
   <!-- camada onde a animação de transição entre categorias acontece -->
   <div id="transitionOverlay"></div>
 
-  <!-- WHATSAPP CTA -->
-  <a href="https://wa.me/5541992353049?text=Ol%C3%A1!%20Vim%20pelo%20app%20da%20Top%20Cell%20e%20quero%20saber%20mais." class="wa-cta" target="_blank" rel="noopener">
-    <div class="wa-icon">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.46 1.32 4.96L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.02c-.24.68-1.4 1.32-1.93 1.4-.5.08-1.12.11-1.8-.12-.42-.13-.96-.31-1.65-.6-2.9-1.25-4.79-4.17-4.94-4.37-.14-.2-1.19-1.58-1.19-3.01 0-1.43.75-2.13 1.02-2.42.27-.3.6-.37.79-.37.2 0 .4 0 .57.01.18.01.43-.07.68.52.24.6.83 2.05.9 2.2.07.15.12.32.02.52-.1.2-.15.32-.3.5-.14.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.3.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.35 1.44.3.15.47.13.65-.07.18-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.72.81 2.01.96.29.15.49.22.56.35.07.13.07.75-.17 1.43z"/></svg>
-    </div>
-    <div class="wa-text">
-      <strong>FALAR COM A LOJA</strong>
-      <span>TIRE SUAS DÚVIDAS OU FAÇA SEU PEDIDO</span>
-    </div>
-    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 6 15 12 9 18"/></svg>
-  </a>
-
   <!-- SIDE MENU -->
   <div class="overlay" id="overlay"></div>
   <div class="side-menu" id="sideMenu">
@@ -713,6 +674,9 @@
   // 2) Supabase (mesmo projeto usado no app de gerenciamento)
   const SUPABASE_URL = "https://jpgvlzpbzdzzrxhldrzt.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_mtjAZCJL4ZO0LjDP9zMfeQ_Jln6EYlq";
+
+  // 3) Link do app de gerenciamento (acesso "secreto" via o botão Início)
+  const ADMIN_URL = "https://mello13256.github.io/topcell-admin/";
 
   // Ícone de fallback por categoria, caso o produto não tenha foto_url
   const FALLBACK_ICON = {
@@ -982,12 +946,51 @@
     });
   });
 
-  // "Início" no menu lateral -> recarrega o app do zero, inclusive
-  // com a animação de abertura tocando de novo.
-  document.getElementById('menuInicio').addEventListener('click', (e) => {
-    e.preventDefault();
-    window.location.reload();
-  });
+  // "Início" no menu lateral -> toque normal leva pra aba Destaques.
+  // Gatilho secreto: se a pessoa JÁ estiver na aba Destaques e segurar
+  // esse mesmo botão por 5 segundos ou mais, ao soltar ela é levada
+  // pro app de gerenciamento.
+  const menuInicioBtn = document.getElementById('menuInicio');
+  const HOLD_MS = 5000;
+  let holdTimer = null;
+  let holdArmed = false;
+  let pressStartedOnDestaques = false;
+
+  function isOnDestaques(){
+    return activeCat === null && destaquesSection.style.display !== 'none';
+  }
+
+  function goToDestaques(){
+    activeCat = null;
+    searchInput.value = '';
+    catBtns.forEach(b => b.classList.remove('active'));
+    render();
+  }
+
+  function startHold(){
+    pressStartedOnDestaques = isOnDestaques();
+    holdArmed = false;
+    if (pressStartedOnDestaques){
+      holdTimer = setTimeout(() => { holdArmed = true; }, HOLD_MS);
+    }
+  }
+
+  function endHold(e){
+    if (e) e.preventDefault();
+    clearTimeout(holdTimer);
+    hideMenu();
+    if (holdArmed && pressStartedOnDestaques){
+      window.location.href = ADMIN_URL;
+      return;
+    }
+    goToDestaques();
+  }
+
+  menuInicioBtn.addEventListener('click', (e) => e.preventDefault());
+  menuInicioBtn.addEventListener('pointerdown', startHold);
+  menuInicioBtn.addEventListener('pointerup', endHold);
+  menuInicioBtn.addEventListener('pointerleave', () => clearTimeout(holdTimer));
+  menuInicioBtn.addEventListener('contextmenu', (e) => e.preventDefault());
 
   // "Sobre a loja" -> abre o WhatsApp já perguntando sobre a loja
   document.getElementById('menuSobre').addEventListener('click', (e) => {
