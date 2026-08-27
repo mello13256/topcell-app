@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobre a Top Cell</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --yellow:#FFC800; --navy:#050B1A; --navy-2:#0A1428;
+    --blue:#1E6FEA; --blue-bright:#3AA6FF; --blue-glow:#4FC3FF; --white:#F4F8FF;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background: var(--yellow); font-family:'Rajdhani', sans-serif; color:var(--white); }
+  body{ display:flex; justify-content:center; min-height:100vh; }
+  .page{ width:100%; max-width:420px; min-height:100vh; background: var(--yellow); padding-bottom:40px; }
+
+  .hero{
+    position:relative;
+    background: radial-gradient(ellipse at 50% 0%, rgba(30,111,234,0.35), transparent 60%), linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 80%, var(--yellow) 100%);
+    padding: 26px 24px 40px;
+    text-align:center;
+  }
+  .back-btn{
+    position:absolute; left:16px; top:18px;
+    width:36px; height:36px; border-radius:50%;
+    background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    display:flex; align-items:center; justify-content:center;
+    color:#c3d3f0; text-decoration:none; font-size:1.3rem;
+  }
+  .logo{
+    font-family:'Orbitron', sans-serif; font-weight:900; font-size:1.7rem;
+    color: var(--navy); -webkit-text-stroke: 1.1px var(--yellow);
+    text-shadow: 0 0 12px rgba(255,200,0,0.55); margin-top:18px;
+  }
+  .logo span{ -webkit-text-stroke: 1.1px var(--blue-bright); text-shadow: 0 0 12px rgba(58,166,255,0.55); margin-left:0.28em; }
+  .slogan{
+    margin-top:10px; font-weight:700; font-style:italic; color: var(--yellow);
+    font-size:1.05rem;
+  }
+
+  .content{ padding: 26px 24px 0; }
+  .info-card{
+    background: linear-gradient(160deg, #0a1526 0%, #050b1a 100%);
+    border:1px solid rgba(58,166,255,0.25);
+    border-radius:16px; padding:18px; margin-bottom:14px;
+    display:flex; gap:14px; align-items:flex-start;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  }
+  .info-icon{
+    width:38px; height:38px; border-radius:10px; flex-shrink:0;
+    background: rgba(58,166,255,0.12); border:1px solid rgba(58,166,255,0.35);
+    display:flex; align-items:center; justify-content:center; color: var(--blue-glow);
+  }
+  .info-icon svg{ width:20px; height:20px; }
+  .info-text h3{ font-size:0.95rem; color:#fff; margin-bottom:4px; }
+  .info-text p{ font-size:0.88rem; color:#a9bde0; line-height:1.4; }
+
+  .cta{
+    display:block; margin: 22px 24px 0;
+    background: linear-gradient(120deg, var(--blue), var(--blue-bright));
+    color:#fff; text-align:center; text-decoration:none;
+    padding:14px; border-radius:14px; font-weight:800; font-size:0.95rem;
+    box-shadow: 0 0 18px rgba(58,166,255,0.4);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero">
+    <a href="index.html" class="back-btn" aria-label="Voltar">‹</a>
+    <div class="logo">TOP<span>CELL</span></div>
+    <div class="slogan">"Cliente em primeiro lugar"</div>
+  </div>
+
+  <div class="content">
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      </div>
+      <div class="info-text">
+        <h3>Desde 2017</h3>
+        <p>A Top Cell atende a comunidade há anos, com experiência de sobra em celulares, acessórios e assistência técnica.</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <div class="info-text">
+        <h3>Onde estamos</h3>
+        <p>Centro de Contenda<br>Avenida João Franco, 81</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <div class="info-text">
+        <h3>Qualidade e garantia</h3>
+        <p>Atendimento de qualidade e garantia em todos os serviços e produtos vendidos pela loja.</p>
+      </div>
+    </div>
+
+    <a href="index.html" class="cta">Ver catálogo</a>
+  </div>
+</div>
+</body>
+</html>
