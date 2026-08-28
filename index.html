@@ -947,26 +947,84 @@
     return card;
   }
 
+  // Quantos cards desenhar de cada vez. O resto só entra na tela
+  // quando a pessoa rola até o fim — assim um catálogo grande não
+  // trava o celular tentando desenhar tudo de uma vez.
+  const RENDER_CHUNK = 12;
+  let destaquesShown = RENDER_CHUNK;
+  let categoryShown = RENDER_CHUNK;
+  let lastDestaqueItems = [];
+  let lastCategoryItems = [];
+
+  // Desenha uma fatia da lista dentro do container, continuando de onde
+  // parou (não redesenha o que já está na tela).
+  function paintChunk(container, items, alreadyPainted, limit){
+    const slice = items.slice(alreadyPainted, limit);
+    slice.forEach((row, i) => {
+      const card = renderCard(row);
+      card.style.animationDelay = (i * 0.05) + 's';
+      container.appendChild(card);
+    });
+  }
+
+  function setupSentinel(container, getState){
+    // observa o fim da lista: quando ele entra na tela, desenha mais.
+    const sentinel = document.createElement('div');
+    sentinel.style.cssText = 'grid-column:1/-1;height:1px;';
+    container.appendChild(sentinel);
+
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0].isIntersecting) return;
+      const state = getState();
+      if (state.shown >= state.items.length){
+        io.disconnect();
+        sentinel.remove();
+        return;
+      }
+      const prev = state.shown;
+      const next = Math.min(prev + RENDER_CHUNK, state.items.length);
+      state.setShown(next);
+      container.removeChild(sentinel);
+      paintChunk(container, state.items, prev, next);
+      container.appendChild(sentinel);
+      if (next >= state.items.length){
+        io.disconnect();
+        sentinel.remove();
+      }
+    }, { rootMargin: '300px' });
+
+    io.observe(sentinel);
+  }
+
   // Renderiza tudo: os Destaques só aparecem na tela inicial (nenhuma
   // categoria/busca ativa); a partir daí, some por completo e dá lugar
   // à seção da categoria escolhida. O filtro de preço vale pra tudo;
   // o filtro Novo/Usado só existe dentro de Celulares.
-  function render(){
+  function render(resetPaging = true){
     const q = searchInput.value.trim().toLowerCase();
     const showCategory = !!activeCat || !!q;
+
+    if (resetPaging){
+      destaquesShown = RENDER_CHUNK;
+      categoryShown = RENDER_CHUNK;
+    }
 
     // ---- Destaques (só na tela inicial) ----
     if (!showCategory){
       destaquesGrid.innerHTML = '';
-      const destaqueItems = allProducts.filter(row => row.destaque === true && matchesPriceFilter(row));
-      destaqueItems.forEach((row, i) => {
-        const card = renderCard(row);
-        card.style.animationDelay = (i * 0.05) + 's';
-        destaquesGrid.appendChild(card);
-      });
+      lastDestaqueItems = allProducts.filter(row => row.destaque === true && matchesPriceFilter(row));
+      const limit = Math.min(destaquesShown, lastDestaqueItems.length);
+      paintChunk(destaquesGrid, lastDestaqueItems, 0, limit);
+      if (lastDestaqueItems.length > limit){
+        setupSentinel(destaquesGrid, () => ({
+          items: lastDestaqueItems,
+          shown: destaquesShown,
+          setShown: (n) => { destaquesShown = n; }
+        }));
+      }
       destaquesGrid.classList.add('full');
       destaquesSection.style.display = '';
-      destaquesEmptyMsg.classList.toggle('show', destaqueItems.length === 0 && allProducts.length > 0);
+      destaquesEmptyMsg.classList.toggle('show', lastDestaqueItems.length === 0 && allProducts.length > 0);
     } else {
       destaquesSection.style.display = 'none';
     }
@@ -986,7 +1044,7 @@
       categoryTitle.textContent = activeCat ? (CATEGORY_LABELS[activeCat] || activeCat.toUpperCase()) : 'RESULTADOS DA BUSCA';
 
       productsWrap.innerHTML = '';
-      const filtered = allProducts.filter(row => {
+      lastCategoryItems = allProducts.filter(row => {
         const cat = (row.categoria || '').trim().toLowerCase();
         const name = (row.nome || '').trim().toLowerCase();
         const matchesCat = !activeCat || cat === activeCat;
@@ -994,12 +1052,16 @@
         const matchesCondition = !(activeCat === 'celulares' && conditionFilter !== 'todos') || row.condicao === conditionFilter;
         return matchesCat && matchesSearch && matchesCondition && matchesPriceFilter(row);
       });
-      filtered.forEach((row, i) => {
-        const card = renderCard(row);
-        card.style.animationDelay = (i * 0.05) + 's';
-        productsWrap.appendChild(card);
-      });
-      emptyMsg.classList.toggle('show', filtered.length === 0 && allProducts.length > 0);
+      const limit = Math.min(categoryShown, lastCategoryItems.length);
+      paintChunk(productsWrap, lastCategoryItems, 0, limit);
+      if (lastCategoryItems.length > limit){
+        setupSentinel(productsWrap, () => ({
+          items: lastCategoryItems,
+          shown: categoryShown,
+          setShown: (n) => { categoryShown = n; }
+        }));
+      }
+      emptyMsg.classList.toggle('show', lastCategoryItems.length === 0 && allProducts.length > 0);
     }
   }
 
@@ -1242,27 +1304,52 @@
   // menu ao clicar, o link em si já abre em nova aba)
   document.getElementById('menuSobre').addEventListener('click', () => hideMenu());
 
-  // Carrega os produtos do Supabase (mesmo banco usado pelo app de
-  // gerenciamento) e escuta mudanças em tempo real — sem delay de cache.
+  // Carrega os produtos do Supabase em lotes: a primeira leva aparece
+  // rápido na tela, e o resto vai chegando em segundo plano. Assim o
+  // app abre rápido mesmo com um catálogo grande.
+  const FETCH_PAGE_SIZE = 100;
+
   async function loadProducts(){
     loadingMsg.classList.add('show');
     errorMsg.classList.remove('show');
 
-    const { data, error } = await supabaseClient
-      .from('produtos')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    let page = 0;
+    let acumulado = [];
 
-    loadingMsg.classList.remove('show');
+    while (true){
+      const from = page * FETCH_PAGE_SIZE;
+      const to = from + FETCH_PAGE_SIZE - 1;
 
-    if (error){
-      errorMsg.classList.add('show');
-      errorMsg.textContent = 'Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.';
-      return;
+      const { data, error } = await supabaseClient
+        .from('produtos')
+        .select('*')
+        .order('updated_at', { ascending: false })
+        .range(from, to);
+
+      if (error){
+        loadingMsg.classList.remove('show');
+        // se já tinha carregado alguma coisa, mantém o que veio em vez
+        // de jogar tudo fora e mostrar erro
+        if (acumulado.length === 0){
+          errorMsg.classList.add('show');
+          errorMsg.textContent = 'Não foi possível carregar os produtos agora. Verifique sua internet e tente novamente.';
+        }
+        return;
+      }
+
+      const lote = data || [];
+      acumulado = acumulado.concat(lote);
+      allProducts = acumulado;
+
+      loadingMsg.classList.remove('show');
+      // só o primeiro lote reseta a paginação visual; os lotes que
+      // chegam depois não podem "puxar" a tela de volta pro topo se a
+      // pessoa já estiver rolando.
+      render(page === 0);
+
+      if (lote.length < FETCH_PAGE_SIZE) break; // acabou
+      page++;
     }
-
-    allProducts = data || [];
-    render();
   }
 
   loadProducts();
