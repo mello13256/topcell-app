@@ -415,6 +415,7 @@
     transition: width 1.3s cubic-bezier(.19,.78,.32,1), height 1.3s cubic-bezier(.19,.78,.32,1), opacity 1.3s ease-out;
   }
   .card{
+    cursor:pointer;
     background: linear-gradient(160deg, #0a1526 0%, #050b1a 100%);
     border:1px solid rgba(58,166,255,0.18);
     border-radius:16px;
@@ -639,6 +640,97 @@
     background: var(--navy); border-color: var(--navy); color: var(--yellow);
   }
 
+  /* ===== TELA DE DETALHE DO PRODUTO ===== */
+  .detail-screen{
+    position:fixed; inset:0; z-index:300;
+    background: var(--navy);
+    overflow-y:auto;
+    transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1);
+    max-width:420px; margin:0 auto;
+  }
+  .detail-screen.open{ transform: translateY(0); }
+  .detail-topbar{
+    position:sticky; top:0; z-index:2;
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px;
+    background: rgba(5,11,26,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid rgba(58,166,255,0.15);
+  }
+  .detail-back{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
+    color:#c3d3f0; font-size:1.4rem; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .detail-topbar-title{
+    font-weight:700; font-size:0.92rem; color:#c3d3f0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .detail-gallery{ position:relative; background:#060c1a; }
+  .detail-gallery-track{
+    display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+  }
+  .detail-gallery-track::-webkit-scrollbar{ display:none; }
+  .detail-slide{
+    flex:0 0 100%; scroll-snap-align:center;
+    height:300px;
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(circle at 50% 40%, #16233f, #060c1a 75%);
+    font-size:4rem;
+  }
+  .detail-slide img{ width:100%; height:100%; object-fit:contain; }
+  .detail-dots{
+    display:flex; justify-content:center; gap:6px;
+    padding:10px 0 4px;
+    background:#060c1a;
+  }
+  .detail-dot{
+    width:6px; height:6px; border-radius:50%;
+    background: rgba(255,255,255,0.25); transition:.2s;
+  }
+  .detail-dot.active{ background: var(--yellow); width:18px; border-radius:4px; }
+
+  .detail-body{ padding: 20px 20px 40px; }
+  .detail-badge{
+    display:none;
+    font-size:0.62rem; font-weight:800; letter-spacing:0.4px;
+    padding:4px 10px; border-radius:999px;
+    background: var(--blue-bright); color: var(--navy);
+    margin-bottom:10px;
+  }
+  .detail-badge.show{ display:inline-block; }
+  .detail-badge.promo{ background: var(--yellow); }
+  .detail-body h2{
+    font-size:1.3rem; color:#fff; line-height:1.25; margin-bottom:4px;
+  }
+  .detail-variant{ color:#7189b0; font-weight:600; font-size:0.9rem; margin-bottom:12px; }
+  .detail-price{
+    font-family:'JetBrains Mono', monospace;
+    font-size:1.7rem; font-weight:800; color: var(--yellow);
+    margin-bottom:14px;
+  }
+  .detail-meta{
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;
+  }
+  .detail-chip{
+    font-size:0.75rem; font-weight:700;
+    padding:6px 12px; border-radius:999px;
+    background: rgba(58,166,255,0.1);
+    border:1px solid rgba(58,166,255,0.3);
+    color: var(--blue-glow);
+  }
+  .detail-chip.out{ background: rgba(229,72,77,0.12); border-color: rgba(229,72,77,0.4); color:#FF6B6E; }
+  .detail-buy{
+    width:100%; padding:15px; border:none; border-radius:14px;
+    background:#25D366; color:#fff;
+    font-family:'Rajdhani', sans-serif; font-weight:800; font-size:1rem;
+    cursor:pointer; box-shadow: 0 6px 20px rgba(37,211,102,0.3);
+  }
+  .detail-buy:disabled{ background:#3a4a5c; box-shadow:none; opacity:0.7; }
+
   @media (max-width:360px){
     .brand-top, .brand-bottom{ font-size:1.65rem; }
     .card{ padding:10px; }
@@ -806,6 +898,28 @@
     </div>
   </div>
 
+  <!-- TELA DE DETALHE DO PRODUTO (abre ao tocar num anúncio) -->
+  <div class="detail-screen" id="detailScreen">
+    <div class="detail-topbar">
+      <button class="detail-back" id="detailBack" aria-label="Voltar">‹</button>
+      <span class="detail-topbar-title" id="detailTopTitle"></span>
+    </div>
+
+    <div class="detail-gallery">
+      <div class="detail-gallery-track" id="detailGalleryTrack"></div>
+      <div class="detail-dots" id="detailDots"></div>
+    </div>
+
+    <div class="detail-body">
+      <span class="detail-badge" id="detailBadge"></span>
+      <h2 id="detailName"></h2>
+      <div class="detail-variant" id="detailVariant"></div>
+      <div class="detail-price" id="detailPrice"></div>
+      <div class="detail-meta" id="detailMeta"></div>
+      <button class="detail-buy" id="detailBuy">Comprar pelo WhatsApp</button>
+    </div>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -908,6 +1022,130 @@
     return { label, cls, inStock };
   }
 
+  // ===== TELA DE DETALHE DO PRODUTO =====
+  const detailScreen = document.getElementById('detailScreen');
+  const detailGalleryTrack = document.getElementById('detailGalleryTrack');
+  const detailDots = document.getElementById('detailDots');
+  const detailBadge = document.getElementById('detailBadge');
+  const detailName = document.getElementById('detailName');
+  const detailTopTitle = document.getElementById('detailTopTitle');
+  const detailVariant = document.getElementById('detailVariant');
+  const detailPrice = document.getElementById('detailPrice');
+  const detailMeta = document.getElementById('detailMeta');
+  const detailBuy = document.getElementById('detailBuy');
+  let detailProduct = null;
+
+  function openDetail(row){
+    detailProduct = row;
+    const cat = (row.categoria || '').trim().toLowerCase();
+    const name = (row.nome || '').trim();
+    const icon = FALLBACK_ICON[cat] || '📦';
+    const { label, cls, inStock } = badgeInfo(row);
+
+    // monta a lista de fotos: capa primeiro, depois as de detalhe
+    const fotos = [];
+    if ((row.foto_url || '').trim()) fotos.push(row.foto_url.trim());
+    if (Array.isArray(row.fotos_extras)){
+      row.fotos_extras.forEach((f) => {
+        const u = (f && f.url ? f.url : '').trim();
+        if (u) fotos.push(u);
+      });
+    }
+
+    detailGalleryTrack.innerHTML = '';
+    detailDots.innerHTML = '';
+
+    if (fotos.length === 0){
+      const slide = document.createElement('div');
+      slide.className = 'detail-slide';
+      slide.textContent = icon;
+      detailGalleryTrack.appendChild(slide);
+    } else {
+      fotos.forEach((url, i) => {
+        const slide = document.createElement('div');
+        slide.className = 'detail-slide';
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = name;
+        img.loading = i === 0 ? 'eager' : 'lazy';
+        img.addEventListener('error', () => { slide.textContent = icon; });
+        slide.appendChild(img);
+        detailGalleryTrack.appendChild(slide);
+      });
+      // bolinhas só se tiver mais de uma foto
+      if (fotos.length > 1){
+        fotos.forEach((_, i) => {
+          const dot = document.createElement('div');
+          dot.className = 'detail-dot' + (i === 0 ? ' active' : '');
+          detailDots.appendChild(dot);
+        });
+      }
+    }
+
+    detailBadge.textContent = label || '';
+    detailBadge.className = 'detail-badge' + (label ? ' show' : '') + (cls ? ' ' + cls : '');
+    detailName.textContent = name;
+    detailTopTitle.textContent = name;
+    detailVariant.textContent = row.variante || '';
+    detailVariant.style.display = (row.variante || '').trim() ? '' : 'none';
+    detailPrice.textContent = 'R$ ' + (row.preco || '');
+
+    // chips de informação (categoria, condição, estoque)
+    detailMeta.innerHTML = '';
+    const chips = [];
+    if (CATEGORY_LABELS[cat]) chips.push({ text: CATEGORY_LABELS[cat] });
+    if (row.condicao === 'novo') chips.push({ text: 'Novo' });
+    if (row.condicao === 'usado') chips.push({ text: 'Usado / Seminovo' });
+    chips.push(inStock ? { text: 'Disponível' } : { text: 'Esgotado', out: true });
+    chips.forEach((c) => {
+      const el = document.createElement('span');
+      el.className = 'detail-chip' + (c.out ? ' out' : '');
+      el.textContent = c.text;
+      detailMeta.appendChild(el);
+    });
+
+    detailBuy.disabled = !inStock;
+    detailBuy.textContent = inStock ? 'Comprar pelo WhatsApp' : 'Produto indisponível';
+
+    detailGalleryTrack.scrollLeft = 0;
+    detailScreen.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // registra no histórico pra o botão "voltar" do celular fechar
+    // o detalhe em vez de sair do app
+    history.pushState({ detail: true }, '');
+  }
+
+  function closeDetail(fromPopstate){
+    detailScreen.classList.remove('open');
+    document.body.style.overflow = '';
+    detailProduct = null;
+    // se foi fechado pelo botão da tela, desfaz a entrada do histórico
+    if (!fromPopstate && history.state && history.state.detail){
+      history.back();
+    }
+  }
+
+  document.getElementById('detailBack').addEventListener('click', () => closeDetail(false));
+
+  // sincroniza as bolinhas ao deslizar a galeria
+  detailGalleryTrack.addEventListener('scroll', () => {
+    const dots = detailDots.querySelectorAll('.detail-dot');
+    if (!dots.length) return;
+    const idx = Math.round(detailGalleryTrack.scrollLeft / detailGalleryTrack.clientWidth);
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  });
+
+  detailBuy.addEventListener('click', () => {
+    if (!detailProduct) return;
+    const msg = encodeURIComponent(`Olá! Quero comprar: ${(detailProduct.nome || '').trim()}`);
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+  });
+
+  // botão "voltar" do celular fecha o detalhe em vez de sair do app
+  window.addEventListener('popstate', () => {
+    if (detailScreen.classList.contains('open')) closeDetail(true);
+  });
+
   function renderCard(row){
     const cat = (row.categoria || '').trim().toLowerCase();
     const name = (row.nome || '').trim();
@@ -938,11 +1176,15 @@
       });
     }
 
-    card.querySelector('.details-btn').addEventListener('click', () => {
+    card.querySelector('.details-btn').addEventListener('click', (e) => {
+      e.stopPropagation(); // não abre o detalhe, vai direto pro WhatsApp
       if (!inStock) return;
       const msg = encodeURIComponent(`Olá! Quero comprar: ${name}`);
       window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
     });
+
+    // Tocar em qualquer outra parte do card abre a tela de detalhe
+    card.addEventListener('click', () => openDetail(row));
 
     return card;
   }
